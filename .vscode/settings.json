@@ -2,5 +2,8 @@
     "java.format.settings.url": ".vscode/java-formatter.xml",
     "[java]": {
         "editor.tabSize": 4
-    }
+    },
+    "editor.formatOnSave": true,
+    "files.autoSave": "afterDelay",
+    "files.autoSaveDelay": 60000
 }

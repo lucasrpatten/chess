@@ -7,7 +7,7 @@ import java.util.Collection;
  */
 public class ChessPiece {
     private PieceType pieceType;
-    private ChessGame.TeamColor pieceColor;
+    private ChessGame.TeamColor teamColor;
 
     /**
      * Constructs a ChessPiece object given the color and piece type
@@ -16,7 +16,7 @@ public class ChessPiece {
      * @param type       The type of the piece
      */
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
-        this.pieceColor = pieceColor;
+        this.teamColor = pieceColor;
         this.pieceType = type;
     }
 
@@ -31,7 +31,7 @@ public class ChessPiece {
      * @return Which team this chess piece belongs to
      */
     public ChessGame.TeamColor getTeamColor() {
-        return pieceColor;
+        return teamColor;
     }
 
     /**
@@ -56,7 +56,7 @@ public class ChessPiece {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((pieceType == null) ? 0 : pieceType.hashCode());
-        result = prime * result + ((pieceColor == null) ? 0 : pieceColor.hashCode());
+        result = prime * result + ((teamColor == null) ? 0 : teamColor.hashCode());
         return result;
     }
 
@@ -71,7 +71,7 @@ public class ChessPiece {
         ChessPiece other = (ChessPiece) obj;
         if (pieceType != other.pieceType)
             return false;
-        if (pieceColor != other.pieceColor)
+        if (teamColor != other.teamColor)
             return false;
         return true;
     }

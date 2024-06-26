@@ -4,10 +4,13 @@ package chess;
  * A chessboard that can hold and rearrange chess pieces.
  */
 public class ChessBoard {
-    private ChessPiece[][] board = new ChessPiece[8][8];
+    private ChessPiece[][] board;
 
+    /**
+     * Constructor to generate a blank new chess board.
+     */
     public ChessBoard() {
-
+        board = new ChessPiece[8][8];
     }
 
     /**
@@ -17,7 +20,7 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        throw new RuntimeException("Not implemented");
+        board[position.getRow() - 1][position.getColumn() - 1] = piece;
     }
 
     /**

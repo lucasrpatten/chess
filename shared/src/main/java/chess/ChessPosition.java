@@ -34,29 +34,29 @@ public class ChessPosition {
         return col;
     }
 
-    /**
-     * Compares two chess positions. Result is true if they hold the same position
-     *
-     * @param obj the other position to compare with
-     * @return true if the positions are the same, false otherwise
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        ChessPosition otherPosition = (ChessPosition) obj;
-        return row == otherPosition.row && col == otherPosition.col;
-    }
-
-    /**
-     * @return hash code value for this ChessPosition
-     */
     @Override
     public int hashCode() {
-        return Objects.hash(row, col);
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + row;
+        result = prime * result + col;
+        return result;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ChessPosition other = (ChessPosition) obj;
+        if (row != other.row)
+            return false;
+        if (col != other.col)
+            return false;
+        return true;
+    }
+
 }

@@ -51,24 +51,29 @@ public class ChessPiece {
         throw new RuntimeException("Not implemented");
     }
 
-    /**
-     * Overides equals operations to compare two pieces
-     * 
-     * @param obj Object to compare
-     * @return true if the objects have same position and color, false otherwise
-     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((pieceType == null) ? 0 : pieceType.hashCode());
+        result = prime * result + ((pieceColor == null) ? 0 : pieceColor.hashCode());
+        return result;
+    }
+
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
+        if (this == obj)
             return true;
-        }
-
-        if (obj == null || getClass() != obj.getClass()) {
+        if (obj == null)
             return false;
-        }
-
-        ChessPiece otherPiece = (ChessPiece) obj;
-        return pieceType == otherPiece.pieceType && pieceColor == otherPiece.pieceColor;
-
+        if (getClass() != obj.getClass())
+            return false;
+        ChessPiece other = (ChessPiece) obj;
+        if (pieceType != other.pieceType)
+            return false;
+        if (pieceColor != other.pieceColor)
+            return false;
+        return true;
     }
+
 }

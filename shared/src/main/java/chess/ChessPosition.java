@@ -22,13 +22,13 @@ public class ChessPosition {
      * @return which row this position is in 1 codes for the bottom row
      */
     public int getRow() {
-        throw new RuntimeException("Not implemented");
+        return row;
     }
 
     /**
      * @return which column this position is in 1 codes for the left row
      */
     public int getColumn() {
-        throw new RuntimeException("Not implemented");
+        return col;
     }
 }

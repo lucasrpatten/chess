@@ -31,4 +31,22 @@ public class ChessPosition {
     public int getColumn() {
         return col;
     }
+
+    /**
+     * Compares two chess positions. Result is true if they hold the same position
+     *
+     * @param the other position to compare with
+     * @return true if the positions are the same, false otherwise
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        ChessPosition otherPosition = (ChessPosition) obj;
+        return row == otherPosition.row && col == otherPosition.col;
+    }
 }

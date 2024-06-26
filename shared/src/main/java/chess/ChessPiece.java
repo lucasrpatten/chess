@@ -50,4 +50,25 @@ public class ChessPiece {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         throw new RuntimeException("Not implemented");
     }
+
+    /**
+     * Overides equals operations to compare two pieces
+     * 
+     * @param obj Object to compare
+     * @return true if the objects have same position and color, false otherwise
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        ChessPiece otherPiece = (ChessPiece) obj;
+        return pieceType == otherPiece.pieceType && pieceColor == otherPiece.pieceColor;
+
+    }
 }

@@ -60,6 +60,7 @@ public class ChessPiece {
         case BISHOP:
             return bishopMoves(board, myPosition);
         case KNIGHT:
+            return knightMoves(board, myPosition);
         case KING:
         case QUEEN:
         case ROOK:
@@ -162,6 +163,44 @@ public class ChessPiece {
             }
         }
 
+        return moves;
+    }
+
+    /**
+     * Calculates a knights valid moves
+     * 
+     * @param board      The current chess board
+     * @param myPosition The pieces current position
+     * @return HashSet of valid moves
+     */
+    private Collection knightMoves(ChessBoard board, ChessPosition myPosition) {
+        HashSet<ChessMove> moves = new HashSet<>();
+        int currentRow = myPosition.getRow();
+        int currentCol = myPosition.getColumn();
+        int[][] possibleMoves = { { currentRow + 2, currentCol + 1 }, // up 2 right 1
+                { currentRow + 2, currentCol - 1 }, // up 2 left 1
+                { currentRow - 2, currentCol + 1 }, // down 2 right 1
+                { currentRow - 2, currentCol - 1 }, // down 2 left 1
+                { currentRow + 1, currentCol + 2 }, // right 2 up 1
+                { currentRow + 1, currentCol - 2 }, // right 2 down 1
+                { currentRow - 1, currentCol + 2 }, // left 2 up 1
+                { currentRow - 1, currentCol - 2 } // left 2 down 1
+        };
+
+        // check possible moves
+        for (int[] move : possibleMoves) {
+            int row = move[0];
+            int col = move[1];
+            // Make sure move is on the board
+            if (row < 1 || row > 8 || col < 1 || col > 8) {
+                continue;
+            }
+            ChessPosition newPosition = new ChessPosition(row, col);
+            ChessPiece piece = board.getPiece(newPosition);
+            if (piece == null || piece.teamColor != teamColor) {
+                moves.add(new ChessMove(myPosition, newPosition));
+            }
+        }
         return moves;
     }
 

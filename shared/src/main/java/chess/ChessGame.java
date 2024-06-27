@@ -11,16 +11,19 @@ import java.util.Collection;
 public class ChessGame {
 
     private ChessBoard board;
+    private TeamColor teamTurn;
 
     public ChessGame() {
-
+        board = new ChessBoard();
+        teamTurn = TeamColor.WHITE;
+        board.resetBoard();
     }
 
     /**
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn() {
-        throw new RuntimeException("Not implemented");
+        return teamTurn;
     }
 
     /**
@@ -29,7 +32,7 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        throw new RuntimeException("Not implemented");
+        teamTurn = team;
     }
 
     /**
@@ -109,7 +112,37 @@ public class ChessGame {
         return board;
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((board == null) ? 0 : board.hashCode());
+        result = prime * result + ((teamTurn == null) ? 0 : teamTurn.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ChessGame other = (ChessGame) obj;
+        if (board == null) {
+            if (other.board != null)
+                return false;
+        }
+        else if (!board.equals(other.board))
+            return false;
+        if (teamTurn != other.teamTurn)
+            return false;
+        return true;
+    }
+
     // private ChessPosition getKingPosition(TeamColor teamColor) {
 
     // }
+
 }

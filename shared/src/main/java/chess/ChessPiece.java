@@ -106,29 +106,32 @@ public class ChessPiece {
         }
 
         // Capture diagonally left
-        ChessPosition captureLeft = new ChessPosition(currentRow + direction, currentCol - 1);
-        ChessPiece pieceLeft = board.getPiece(captureLeft);
-        if (pieceLeft != null && pieceLeft.getTeamColor() != teamColor) {
-            // Check for promotion when capturing on the last row
-            if (captureLeft.getRow() == 1 || captureLeft.getRow() == 8) {
-                addPromotionMoves(moves, myPosition, captureLeft);
+        if (currentCol != 1) {
+            ChessPosition captureLeft = new ChessPosition(currentRow + direction, currentCol - 1);
+            ChessPiece pieceLeft = board.getPiece(captureLeft);
+            if (pieceLeft != null && pieceLeft.getTeamColor() != teamColor) {
+                // Check for promotion when capturing on the last row
+                if (captureLeft.getRow() == 1 || captureLeft.getRow() == 8) {
+                    addPromotionMoves(moves, myPosition, captureLeft);
+                }
+                else {
+                    moves.add(new ChessMove(myPosition, captureLeft));
+                }
             }
-            else {
-                moves.add(new ChessMove(myPosition, captureLeft));
-            }
-
         }
 
         // Capture diagonally right
-        ChessPosition captureRight = new ChessPosition(currentRow + direction, currentCol + 1);
-        ChessPiece pieceRight = board.getPiece(captureRight);
-        if (pieceRight != null && pieceRight.getTeamColor() != teamColor) {
-            // Check for promotion when capturing on the last row
-            if (captureRight.getRow() == 1 || captureRight.getRow() == 8) {
-                addPromotionMoves(moves, myPosition, captureRight);
-            }
-            else {
-                moves.add(new ChessMove(myPosition, captureRight));
+        if (currentCol != 8) {
+            ChessPosition captureRight = new ChessPosition(currentRow + direction, currentCol + 1);
+            ChessPiece pieceRight = board.getPiece(captureRight);
+            if (pieceRight != null && pieceRight.getTeamColor() != teamColor) {
+                // Check for promotion when capturing on the last row
+                if (captureRight.getRow() == 1 || captureRight.getRow() == 8) {
+                    addPromotionMoves(moves, myPosition, captureRight);
+                }
+                else {
+                    moves.add(new ChessMove(myPosition, captureRight));
+                }
             }
         }
 

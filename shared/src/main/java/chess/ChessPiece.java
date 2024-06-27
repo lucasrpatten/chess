@@ -82,18 +82,19 @@ public class ChessPiece {
         HashSet<ChessMove> moves = new HashSet<>();
         int currentRow = myPosition.getRow();
         int currentCol = myPosition.getColumn();
-        // // Check to ensure the pawn won't (somehow) be moving off the board
-        // if ((teamColor == TeamColor.WHITE && currentRow == 7) || (teamColor ==
-        // TeamColor.WHITE && currentRow == 1)) {
-        // return moves;
-        // }
         int startRow = (teamColor == TeamColor.WHITE) ? 2 : 7;
         int direction = (teamColor == TeamColor.WHITE) ? 1 : -1;
 
         // Move Up
         ChessPosition upOne = new ChessPosition(currentRow + direction, currentCol);
         if (board.getPiece(upOne) == null) {
-            moves.add(new ChessMove(myPosition, upOne));
+            // Check for promotion when reaching the last row
+            if (upOne.getRow() == 1 || upOne.getRow() == 8) {
+                addPromotionMoves(moves, myPosition, upOne);
+            }
+            else {
+                moves.add(new ChessMove(myPosition, upOne));
+            }
 
             // Allowed to move up two if on starting row
             if (currentRow == startRow) {
@@ -108,17 +109,45 @@ public class ChessPiece {
         ChessPosition captureLeft = new ChessPosition(currentRow + direction, currentCol - 1);
         ChessPiece pieceLeft = board.getPiece(captureLeft);
         if (pieceLeft != null && pieceLeft.getTeamColor() != teamColor) {
-            moves.add(new ChessMove(myPosition, captureLeft));
+            // Check for promotion when capturing on the last row
+            if (captureLeft.getRow() == 1 || captureLeft.getRow() == 8) {
+                addPromotionMoves(moves, myPosition, captureLeft);
+            }
+            else {
+                moves.add(new ChessMove(myPosition, captureLeft));
+            }
+
         }
 
         // Capture diagonally right
         ChessPosition captureRight = new ChessPosition(currentRow + direction, currentCol + 1);
         ChessPiece pieceRight = board.getPiece(captureRight);
         if (pieceRight != null && pieceRight.getTeamColor() != teamColor) {
-            moves.add(new ChessMove(myPosition, captureRight));
+            // Check for promotion when capturing on the last row
+            if (captureRight.getRow() == 1 || captureRight.getRow() == 8) {
+                addPromotionMoves(moves, myPosition, captureRight);
+            }
+            else {
+                moves.add(new ChessMove(myPosition, captureRight));
+            }
         }
 
         return moves;
+    }
+
+    /**
+     * Helper method to add promotion moves for a pawn reaching the promotion rank.
+     * 
+     * @param moves         The collection of valid moves to add to
+     * @param startPosition The starting position of the move
+     * @param endPosition   The ending position of the move (promotion position)
+     */
+    private void addPromotionMoves(Collection<ChessMove> moves, ChessPosition startPosition,
+            ChessPosition endPosition) {
+        moves.add(new ChessMove(startPosition, endPosition, ChessPiece.PieceType.QUEEN));
+        moves.add(new ChessMove(startPosition, endPosition, ChessPiece.PieceType.ROOK));
+        moves.add(new ChessMove(startPosition, endPosition, ChessPiece.PieceType.BISHOP));
+        moves.add(new ChessMove(startPosition, endPosition, ChessPiece.PieceType.KNIGHT));
     }
 
     /**

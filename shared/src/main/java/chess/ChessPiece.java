@@ -61,6 +61,7 @@ public class ChessPiece {
         case KNIGHT:
             return knightMoves(board, myPosition);
         case KING:
+            return kingMoves(board, myPosition);
         case QUEEN:
             return queenMoves(board, myPosition);
         case ROOK:
@@ -218,25 +219,16 @@ public class ChessPiece {
     }
 
     /**
-     * Calculates a knights valid moves
+     * Calculates valid moves given a list of possible moves (used for knight and
+     * king)
      * 
-     * @param board      The current chess board
-     * @param myPosition The pieces current position
+     * @param board         The current chess board
+     * @param myPosition    The pieces current position
+     * @param possibleMoves The allowed moves of the piece
      * @return HashSet of valid moves
      */
-    private Collection<ChessMove> knightMoves(ChessBoard board, ChessPosition myPosition) {
+    private Collection<ChessMove> singleMoves(ChessBoard board, ChessPosition myPosition, int[][] possibleMoves) {
         HashSet<ChessMove> moves = new HashSet<>();
-        int currentRow = myPosition.getRow();
-        int currentCol = myPosition.getColumn();
-        int[][] possibleMoves = { { currentRow + 2, currentCol + 1 }, // up 2 right 1
-                { currentRow + 2, currentCol - 1 }, // up 2 left 1
-                { currentRow - 2, currentCol + 1 }, // down 2 right 1
-                { currentRow - 2, currentCol - 1 }, // down 2 left 1
-                { currentRow + 1, currentCol + 2 }, // right 2 up 1
-                { currentRow + 1, currentCol - 2 }, // right 2 down 1
-                { currentRow - 1, currentCol + 2 }, // left 2 up 1
-                { currentRow - 1, currentCol - 2 } // left 2 down 1
-        };
 
         // check possible moves
         for (int[] move : possibleMoves) {
@@ -248,11 +240,57 @@ public class ChessPiece {
             }
             ChessPosition newPosition = new ChessPosition(row, col);
             ChessPiece piece = board.getPiece(newPosition);
+            // Empty Square or Capture
             if (piece == null || piece.teamColor != teamColor) {
                 moves.add(new ChessMove(myPosition, newPosition));
             }
         }
         return moves;
+    }
+
+    /**
+     * Calculates a knights valid moves
+     * 
+     * @param board      The current chess board
+     * @param myPosition The pieces current position
+     * @return HashSet of valid moves
+     */
+    private Collection<ChessMove> knightMoves(ChessBoard board, ChessPosition myPosition) {
+        int currentRow = myPosition.getRow();
+        int currentCol = myPosition.getColumn();
+        int[][] possibleMoves = { { currentRow + 2, currentCol + 1 }, // up 2 right 1
+                { currentRow + 2, currentCol - 1 }, // up 2 left 1
+                { currentRow - 2, currentCol + 1 }, // down 2 right 1
+                { currentRow - 2, currentCol - 1 }, // down 2 left 1
+                { currentRow + 1, currentCol + 2 }, // right 2 up 1
+                { currentRow + 1, currentCol - 2 }, // right 2 down 1
+                { currentRow - 1, currentCol + 2 }, // left 2 up 1
+                { currentRow - 1, currentCol - 2 } // left 2 down 1
+        };
+        return singleMoves(board, myPosition, possibleMoves);
+    }
+
+    /**
+     * Calculates the kings valid moves
+     * 
+     * @param board      The current chess board
+     * @param myPosition The pieces current position
+     * @return HashSet of valid moves
+     */
+    private Collection<ChessMove> kingMoves(ChessBoard board, ChessPosition myPosition) {
+        int currentRow = myPosition.getRow();
+        int currentCol = myPosition.getColumn();
+        int[][] possibleMoves = { { currentRow + 1, currentCol }, // up
+                { currentRow - 1, currentCol }, // down
+                { currentRow, currentCol + 1 }, // right
+                { currentRow, currentCol - 1 }, // left
+                { currentRow + 1, currentCol + 1 }, // up-right
+                { currentRow + 1, currentCol - 1 }, // up-left
+                { currentRow - 1, currentCol + 1 }, // down-right
+                { currentRow - 1, currentCol - 1 } // down-left
+        };
+
+        return singleMoves(board, myPosition, possibleMoves);
     }
 
     @Override

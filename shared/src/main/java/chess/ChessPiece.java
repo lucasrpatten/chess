@@ -2,7 +2,6 @@ package chess;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.function.Predicate;
 
 import chess.ChessGame.TeamColor;
 
@@ -63,7 +62,9 @@ public class ChessPiece {
             return knightMoves(board, myPosition);
         case KING:
         case QUEEN:
+            return queenMoves(board, myPosition);
         case ROOK:
+            return rookMoves(board, myPosition);
         default:
             throw new RuntimeException(String.format("Unknown piece type: %s", pieceType.toString()));
         }
@@ -120,28 +121,26 @@ public class ChessPiece {
     }
 
     /**
-     * Calculates a bishops valid moves
+     * Calculates the possible moves for pieces that can move any number of spaces
+     * in a certain direction
      * 
      * @param board      The current chess board
      * @param myPosition The pieces current position
+     * @param directions The directions the piece can move continously
      * @return HashSet of valid moves
      */
-    private Collection<ChessMove> bishopMoves(ChessBoard board, ChessPosition myPosition) {
+    private Collection<ChessMove> continuousMoves(ChessBoard board, ChessPosition myPosition, int[][] directions) {
         HashSet<ChessMove> moves = new HashSet<>();
         int currentRow = myPosition.getRow();
         int currentCol = myPosition.getColumn();
-        int[][] directions = { { 1, 1 }, // up-right
-                { 1, -1 }, // up-left
-                { -1, 1 }, // down-right
-                { -1, -1 } // down-left
-        };
-
         for (int[] direction : directions) {
             int rowChange = direction[0];
             int colChange = direction[1];
             int row = currentRow;
             int col = currentCol;
             while (true) {
+                row += rowChange;
+                col += colChange;
                 if (row < 1 || row > 8 || col < 1 || col > 8) {
                     break;
                 }
@@ -167,13 +166,65 @@ public class ChessPiece {
     }
 
     /**
+     * Calculates a bishops valid moves
+     * 
+     * @param board      The current chess board
+     * @param myPosition The pieces current position
+     * @return HashSet of valid moves
+     */
+    private Collection<ChessMove> bishopMoves(ChessBoard board, ChessPosition myPosition) {
+        int[][] directions = { { 1, 1 }, // up-right
+                { 1, -1 }, // up-left
+                { -1, 1 }, // down-right
+                { -1, -1 } // down-left
+        };
+        return continuousMoves(board, myPosition, directions);
+    }
+
+    /**
+     * Calculates a rooks valid moves
+     * 
+     * @param board      The current chess board
+     * @param myPosition The pieces current position
+     * @return HashSet of valid moves
+     */
+    private Collection<ChessMove> rookMoves(ChessBoard board, ChessPosition myPosition) {
+        int[][] directions = { { 1, 0 }, // up
+                { -1, 0 }, // down
+                { 0, 1 }, // right
+                { 0, -1 } // left
+        };
+        return continuousMoves(board, myPosition, directions);
+    }
+
+    /**
+     * Calculates a queens valid moves
+     * 
+     * @param board      The current chess board
+     * @param myPosition The pieces current position
+     * @return HashSet of valid moves
+     */
+    private Collection<ChessMove> queenMoves(ChessBoard board, ChessPosition myPosition) {
+        int[][] directions = { { 1, 1 }, // up-right
+                { 1, -1 }, // up-left
+                { -1, 1 }, // down-right
+                { -1, -1 }, // down-left
+                { 1, 0 }, // up
+                { -1, 0 }, // down
+                { 0, 1 }, // right
+                { 0, -1 } // left
+        };
+        return continuousMoves(board, myPosition, directions);
+    }
+
+    /**
      * Calculates a knights valid moves
      * 
      * @param board      The current chess board
      * @param myPosition The pieces current position
      * @return HashSet of valid moves
      */
-    private Collection knightMoves(ChessBoard board, ChessPosition myPosition) {
+    private Collection<ChessMove> knightMoves(ChessBoard board, ChessPosition myPosition) {
         HashSet<ChessMove> moves = new HashSet<>();
         int currentRow = myPosition.getRow();
         int currentCol = myPosition.getColumn();

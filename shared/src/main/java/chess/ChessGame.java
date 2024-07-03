@@ -1,6 +1,5 @@
 package chess;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -28,8 +27,7 @@ public class ChessGame {
     private Boolean whiteQueensideRookMoved;
     private Boolean blackKingsideRookMoved;
     private Boolean blackQueensideRookMoved;
-
-    private ChessPosition[] enPassantPositions;
+    private ChessPosition enPassantLocation;
 
     public ChessGame() {
         board = new ChessBoard();
@@ -40,7 +38,6 @@ public class ChessGame {
         whiteQueensideRookMoved = false;
         whiteKingsideRookMoved = false;
         blackQueensideRookMoved = false;
-        enPassantPositions = new ChessPosition[2];
         board.resetBoard();
     }
 
@@ -79,9 +76,6 @@ public class ChessGame {
                 allowedMoves.add(move);
             }
         }
-        // HashSet<ChessMove> allowedMoves = moves.stream().filter(move ->
-        // isValidMove(move))
-        // .collect(Collectors.toCollection(HashSet::new));
         return allowedMoves;
     }
 
@@ -101,6 +95,9 @@ public class ChessGame {
             throw new InvalidMoveException("It is not your turn!");
         }
         board.addPiece(move.getStartPosition(), null);
+        if (move.getPromotionPiece() != null) {
+            piece = new ChessPiece(color, move.getPromotionPiece());
+        }
         board.addPiece(move.getEndPosition(), piece);
         teamTurn = teamTurn.opposite();
     }

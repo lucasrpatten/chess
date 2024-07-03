@@ -264,7 +264,7 @@ public class ChessGame {
         board.addPiece(move.getStartPosition(), null);
         ChessPiece capturedPiece = board.getPiece(move.getEndPosition());
         board.addPiece(move.getEndPosition(), piece);
-        if (isInCheck(teamTurn)) {
+        if (isInCheck(piece.getTeamColor())) {
             board.addPiece(move.getStartPosition(), piece);
             board.addPiece(move.getEndPosition(), capturedPiece);
             return false;

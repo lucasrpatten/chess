@@ -1,12 +1,10 @@
 package chess;
 
 import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * For a class that can manage a chess game, making moves on a board
- * <p>
- * Note: You can add to this class, but you may not alter signature of the
- * existing methods.
  */
 public class ChessGame {
 
@@ -39,7 +37,11 @@ public class ChessGame {
      * Enum identifying the 2 possible teams in a chess game
      */
     public enum TeamColor {
-        WHITE, BLACK
+        WHITE, BLACK;
+
+        public TeamColor opposite() {
+            return this == WHITE ? BLACK : WHITE;
+        }
     }
 
     /**
@@ -50,7 +52,10 @@ public class ChessGame {
      *         startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        ChessPiece piece = board.getPiece(startPosition);
+        HashSet<ChessMove> moves = new HashSet<>();
+        Collection<ChessMove> possibleMoves = piece.pieceMoves(board, startPosition);
+        return possibleMoves;
     }
 
     /**
@@ -60,6 +65,7 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        board.getPiece(null);
         throw new RuntimeException("Not implemented");
     }
 
@@ -70,7 +76,22 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ChessPosition kingPosition = getKingPosition(teamColor);
+        for (int i = 1; i <= 8; ++i) {
+            for (int j = 1; j <= 8; ++j) {
+                ChessPosition position = new ChessPosition(i, j);
+                ChessPiece piece = board.getPiece(position);
+                if (piece != null && piece.getTeamColor().opposite() == teamColor) {
+                    Collection<ChessMove> moves = validMoves(position);
+                    for (ChessMove move : moves) {
+                        if (move.getEndPosition().equals(kingPosition)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -141,8 +162,24 @@ public class ChessGame {
         return true;
     }
 
-    // private ChessPosition getKingPosition(TeamColor teamColor) {
-
-    // }
+    /**
+     * Gets the location of the king of the specified team
+     *
+     * @param teamColor which team's king to get
+     * @return the location of the king
+     */
+    private ChessPosition getKingPosition(TeamColor teamColor) {
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPosition currentPosition = new ChessPosition(row, col);
+                if (board.getPiece(currentPosition) != null
+                        && board.getPiece(currentPosition).getTeamColor() == teamColor
+                        && board.getPiece(currentPosition).getPieceType() == ChessPiece.PieceType.KING) {
+                    return currentPosition;
+                }
+            }
+        }
+        throw new IllegalStateException("Could not find king for team " + teamColor.toString());
+    }
 
 }

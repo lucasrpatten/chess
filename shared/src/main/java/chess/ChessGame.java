@@ -91,22 +91,22 @@ public class ChessGame {
         if (piece.getPieceType() == PieceType.KING) {
             if (piece.getTeamColor() == TeamColor.WHITE && board.getPiece(new ChessPosition(1, 5)) != null
                     && board.getPiece(new ChessPosition(1, 5)).getPieceType().equals(PieceType.KING)) {
-                if (board.getPiece(new ChessPosition(1, 8)) != null
+                if (canWhiteKingsideCastle && board.getPiece(new ChessPosition(1, 8)) != null
                         && board.getPiece(new ChessPosition(1, 8)).getPieceType().equals(PieceType.ROOK)) {
                     moves.add(new ChessMove(startPosition, new ChessPosition(1, 7)));
                 }
-                if (board.getPiece(new ChessPosition(1, 1)) != null
+                if (canWhiteQueensideCastle && board.getPiece(new ChessPosition(1, 1)) != null
                         && board.getPiece(new ChessPosition(1, 1)).getPieceType().equals(PieceType.ROOK)) {
                     moves.add(new ChessMove(startPosition, new ChessPosition(1, 3)));
                 }
             }
             else if (board.getPiece(new ChessPosition(8, 5)) != null
                     && board.getPiece(new ChessPosition(8, 5)).getPieceType().equals(PieceType.KING)) {
-                if (board.getPiece(new ChessPosition(8, 8)) != null
+                if (canBlackKingsideCastle && board.getPiece(new ChessPosition(8, 8)) != null
                         && board.getPiece(new ChessPosition(8, 8)).getPieceType().equals(PieceType.ROOK)) {
                     moves.add(new ChessMove(startPosition, new ChessPosition(8, 7)));
                 }
-                if (board.getPiece(new ChessPosition(8, 1)) != null
+                if (canBlackQueensideCastle && board.getPiece(new ChessPosition(8, 1)) != null
                         && board.getPiece(new ChessPosition(8, 1)).getPieceType().equals(PieceType.ROOK)) {
                     moves.add(new ChessMove(startPosition, new ChessPosition(8, 3)));
                 }

@@ -306,6 +306,10 @@ public class ChessGame {
      */
     public void setBoard(ChessBoard board) {
         this.board = board;
+        canBlackKingsideCastle = true;
+        canWhiteKingsideCastle = true;
+        canBlackQueensideCastle = true;
+        canWhiteQueensideCastle = true;
     }
 
     /**

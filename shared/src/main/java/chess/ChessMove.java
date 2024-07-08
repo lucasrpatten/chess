@@ -1,5 +1,7 @@
 package chess;
 
+import java.util.Objects;
+
 import chess.ChessPiece.PieceType;
 
 /**
@@ -58,38 +60,20 @@ public class ChessMove {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((startPosition == null) ? 0 : startPosition.hashCode());
-        result = prime * result + ((endPosition == null) ? 0 : endPosition.hashCode());
-        result = prime * result + ((promotionPiece == null) ? 0 : promotionPiece.hashCode());
-        return result;
+        return Objects.hash(startPosition, endPosition, promotionPiece);
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
-        if (getClass() != obj.getClass())
-            return false;
+        }
         ChessMove other = (ChessMove) obj;
-        if (startPosition == null) {
-            if (other.startPosition != null)
-                return false;
-        }
-        else if (!startPosition.equals(other.startPosition))
-            return false;
-        if (endPosition == null) {
-            if (other.endPosition != null)
-                return false;
-        }
-        else if (!endPosition.equals(other.endPosition))
-            return false;
-        if (promotionPiece != other.promotionPiece)
-            return false;
-        return true;
+        return Objects.equals(startPosition, other.startPosition) && Objects.equals(endPosition, other.endPosition)
+                && promotionPiece == other.promotionPiece;
     }
 
 }

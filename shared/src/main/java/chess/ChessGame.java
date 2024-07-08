@@ -3,6 +3,8 @@ package chess;
 import java.util.Collection;
 import java.util.HashSet;
 
+import chess.ChessPiece.PieceType;
+
 /**
  * For a class that can manage a chess game, making moves on a board
  */
@@ -21,23 +23,19 @@ public class ChessGame {
 
     private ChessBoard board;
     private TeamColor teamTurn;
-    private Boolean whiteKingMoved;
-    private Boolean blackKingMoved;
-    private Boolean whiteKingsideRookMoved;
-    private Boolean whiteQueensideRookMoved;
-    private Boolean blackKingsideRookMoved;
-    private Boolean blackQueensideRookMoved;
+    private boolean canBlackKingsideCastle;
+    private boolean canWhiteKingsideCastle;
+    private boolean canBlackQueensideCastle;
+    private boolean canWhiteQueensideCastle;
     private ChessPosition enPassantLocation;
 
     public ChessGame() {
         board = new ChessBoard();
         teamTurn = TeamColor.WHITE;
-        whiteKingMoved = false;
-        blackKingMoved = false;
-        whiteKingsideRookMoved = false;
-        whiteQueensideRookMoved = false;
-        whiteKingsideRookMoved = false;
-        blackQueensideRookMoved = false;
+        canBlackKingsideCastle = true;
+        canWhiteKingsideCastle = true;
+        canBlackQueensideCastle = true;
+        canWhiteQueensideCastle = true;
         board.resetBoard();
     }
 
@@ -71,6 +69,20 @@ public class ChessGame {
             return allowedMoves;
         }
         Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
+        int curRow = startPosition.getRow();
+        int curCol = startPosition.getColumn();
+        int direction = (piece.getTeamColor() == TeamColor.WHITE) ? 1 : -1;
+
+        if (enPassantLocation != null) {
+            int enPassantRow = enPassantLocation.getRow();
+            int enPassantCol = enPassantLocation.getColumn();
+            if (piece.getPieceType() == PieceType.PAWN && enPassantRow == curRow + direction
+                    && (enPassantCol == curCol - 1 || enPassantCol == curCol + 1)) {
+                ChessMove enPassantMove = new ChessMove(startPosition, enPassantLocation);
+                moves.add(enPassantMove);
+            }
+        }
+
         for (ChessMove move : moves) {
             if (isValidMove(move)) {
                 allowedMoves.add(move);
@@ -94,11 +106,32 @@ public class ChessGame {
         if (color != teamTurn) {
             throw new InvalidMoveException("It is not your turn!");
         }
+        int startRow = (piece.getTeamColor() == TeamColor.WHITE) ? 2 : 7;
+        int direction = (piece.getTeamColor() == TeamColor.WHITE) ? 1 : -1;
         board.addPiece(move.getStartPosition(), null);
         if (move.getPromotionPiece() != null) {
             piece = new ChessPiece(color, move.getPromotionPiece());
         }
         board.addPiece(move.getEndPosition(), piece);
+
+        // Handle en passant capture
+        if (piece.getPieceType() == PieceType.PAWN && enPassantLocation != null
+                && move.getEndPosition().equals(enPassantLocation)) {
+            int captureRow = move.getStartPosition().getRow();
+            int captureCol = enPassantLocation.getColumn();
+            board.addPiece(new ChessPosition(captureRow, captureCol), null);
+        }
+
+        // Set en passant location
+        if (piece.getPieceType() == PieceType.PAWN && move.getStartPosition().getRow() == startRow
+                && move.getEndPosition().getRow() == startRow + direction * 2) {
+            enPassantLocation = new ChessPosition(move.getEndPosition().getRow() - direction,
+                    move.getEndPosition().getColumn());
+        }
+        else {
+            enPassantLocation = null;
+        }
+
         teamTurn = teamTurn.opposite();
     }
 
@@ -242,8 +275,9 @@ public class ChessGame {
                 }
             }
         }
-        // This is literally just a random nubmer cause the stupid tests I have to pass
-        // didn't like following good design practices and implement error checking
+        // This is literally just a random number cause the stupid tests I have to pass
+        // don't like following good design practices and refuse to let me implement
+        // proper error checking
         return new ChessPosition(422, 63);
     }
 
@@ -261,14 +295,9 @@ public class ChessGame {
         board.addPiece(move.getStartPosition(), null);
         ChessPiece capturedPiece = board.getPiece(move.getEndPosition());
         board.addPiece(move.getEndPosition(), piece);
-        if (isInCheck(piece.getTeamColor())) {
-            board.addPiece(move.getStartPosition(), piece);
-            board.addPiece(move.getEndPosition(), capturedPiece);
-            return false;
-        }
+        boolean isValid = !isInCheck(piece.getTeamColor());
         board.addPiece(move.getStartPosition(), piece);
         board.addPiece(move.getEndPosition(), capturedPiece);
-        return true;
+        return isValid;
     }
-
 }

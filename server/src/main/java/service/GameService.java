@@ -1,9 +1,13 @@
 package service;
 
+import chess.ChessGame;
+import dataaccess.AuthDAO;
 import model.GameData;
 import model.UserData;
 
 public class GameService {
+    private static final AuthDAO authDAO = new AuthDAO();
+
     public GameData[] list(UserData user) {
     }
 

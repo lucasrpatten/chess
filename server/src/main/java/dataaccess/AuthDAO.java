@@ -15,7 +15,6 @@ public class AuthDAO {
 
     public void clear() throws DataAccessException {
         tokens.clear();
-
     }
 
     public void deleteAuth(String authToken) throws DataAccessException {

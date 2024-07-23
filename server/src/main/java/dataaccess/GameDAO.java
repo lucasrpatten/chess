@@ -1,7 +1,6 @@
 package dataaccess;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import model.GameData;
 

@@ -9,6 +9,7 @@ public class UserService {
     }
 
     public AuthData login(LoginRequest loginRequest) {
+
     }
 
     public void logout(UserData user) {

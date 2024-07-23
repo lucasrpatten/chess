@@ -1,4 +1,4 @@
-package server;
+package dataaccess.server;
 
 import spark.*;
 

@@ -1,13 +1,30 @@
 package dataaccess;
 
+import java.util.HashMap;
 import model.AuthData;
 
-public interface AuthDAO {
-    void clear() throws DataAccessException;
+public class AuthDAO {
+    private final HashMap<String, AuthData> tokens = new HashMap<>();
 
-    void addAuth(AuthData authData) throws DataAccessException;
+    public void addAuth(AuthData authData) throws DataAccessException {
+        if (tokens.containsKey(authData.authToken())) {
+            throw new DataAccessException("Token already exists");
+        }
+        tokens.put(authData.authToken(), authData);
+    }
 
-    AuthData getAuth(String authToken) throws DataAccessException;
+    public void clear() throws DataAccessException {
+        tokens.clear();
 
-    void deleteAuth(String authToken) throws DataAccessException;
+    }
+
+    public void deleteAuth(String authToken) throws DataAccessException {
+        tokens.remove(authToken);
+
+    }
+
+    public AuthData getAuth(String authToken) throws DataAccessException {
+        return tokens.get(authToken);
+    }
+
 }

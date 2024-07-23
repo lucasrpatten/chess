@@ -5,5 +5,6 @@
     },
     "editor.formatOnSave": true,
     "files.autoSave": "afterDelay",
-    "files.autoSaveDelay": 60000
+    "files.autoSaveDelay": 60000,
+    "java.configuration.updateBuildConfiguration": "automatic"
 }

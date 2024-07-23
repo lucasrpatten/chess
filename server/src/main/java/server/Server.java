@@ -1,5 +1,6 @@
 package server;
 
+import dataaccess.DataAccess;
 import spark.*;
 
 public class Server {
@@ -9,9 +10,10 @@ public class Server {
 
         Spark.staticFiles.location("web");
 
-        // Register your endpoints and handle exceptions here.
+        DataAccess data = new DataAccess();
 
-        //This line initializes the server and can be removed once you have a functioning endpoint 
+        // This line initializes the server and can be removed once you have a
+        // functioning endpoint
         Spark.init();
 
         Spark.awaitInitialization();

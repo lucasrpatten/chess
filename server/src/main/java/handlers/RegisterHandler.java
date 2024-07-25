@@ -19,7 +19,7 @@ public class RegisterHandler extends RequestHandler<UserData> {
     @Override
     protected AuthData getServiceResponse(DataAccess dataAccess, UserData request, String token)
             throws DataAccessException {
-        return new UserService().register(request);
+        return new UserService(dataAccess).register(request);
     }
 
 }

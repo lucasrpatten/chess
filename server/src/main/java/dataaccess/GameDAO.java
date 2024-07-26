@@ -15,8 +15,9 @@ public class GameDAO {
      * @throws DataAccessException if there is an error
      */
     public GameData addGame(GameData gameData) throws DataAccessException {
-        if (gameData.game() == null)
+        if (gameData.game() == null) {
             throw new DataAccessException("Cannot add a null game to the database");
+        }
         int id = games.size() + 1;
         GameData game = new GameData(id, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(),
                 gameData.game());
@@ -47,10 +48,12 @@ public class GameDAO {
      * @throws DataAccessException if there is an error
      */
     public void updateGame(GameData gameData) throws DataAccessException {
-        if (!games.containsKey(gameData.gameID()))
+        if (!games.containsKey(gameData.gameID())) {
             throw new DataAccessException("Game does not exist (so it can't be updated)");
-        if (gameData.game() == null)
+        }
+        if (gameData.game() == null) {
             throw new DataAccessException("Cannot update a null game");
+        }
         games.remove(gameData.gameID());
         games.put(gameData.gameID(), gameData);
     }

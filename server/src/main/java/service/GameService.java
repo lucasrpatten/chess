@@ -45,8 +45,9 @@ public class GameService {
     public CreateGameResult create(String gameName, String authToken) throws ServerException {
         try {
             auth(authToken);
-            if (gameName == null)
+            if (gameName == null) {
                 throw new BadRequestException("Error: Game must have a name");
+            }
             GameData game = new GameData(0, null, null, gameName, new ChessGame());
             game = dataAccess.getGameDAO().addGame(game);
 

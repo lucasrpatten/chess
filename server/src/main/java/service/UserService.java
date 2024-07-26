@@ -10,8 +10,8 @@ import model.LoginRequest;
 import model.UserData;
 
 public class UserService {
-    private static final SecureRandom random = new SecureRandom();
-    private static final Base64.Encoder base64Encoder = Base64.getUrlEncoder();
+    private static final SecureRandom RANDOM = new SecureRandom();
+    private static final Base64.Encoder BASE64ENCODER = Base64.getUrlEncoder();
     private final DataAccess dataAccess;
 
     public UserService(DataAccess dataAccess) {
@@ -106,7 +106,7 @@ public class UserService {
      */
     private String generateAuthToken() {
         byte[] bytes = new byte[24];
-        random.nextBytes(bytes);
-        return base64Encoder.encodeToString(bytes);
+        RANDOM.nextBytes(bytes);
+        return BASE64ENCODER.encodeToString(bytes);
     }
 }

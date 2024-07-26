@@ -30,7 +30,6 @@ public class GameService {
     public CreateGameResult create(String gameName, String authToken) throws ServerException {
         try {
             auth(authToken);
-            System.out.println(gameName);
             if (gameName == null)
                 throw new BadRequestException("Error: Game must have a name");
             GameData game = new GameData(0, null, null, gameName, new ChessGame());
@@ -55,7 +54,7 @@ public class GameService {
             }
             if ((color == TeamColor.BLACK && game.blackUsername() != null)
                     || (color == TeamColor.WHITE && game.whiteUsername() != null)) {
-                throw new BadRequestException("Error: Color is already taken");
+                throw new AlreadyTakenException("Error: Color is already taken");
             }
 
             if (color == TeamColor.BLACK) {

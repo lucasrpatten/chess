@@ -4,6 +4,7 @@ import java.net.HttpURLConnection;
 
 import dataaccess.DataAccess;
 import handlers.ClearHandler;
+import handlers.CreateGameHandler;
 import handlers.RegisterHandler;
 import handlers.ServerExceptionHandler;
 import service.AlreadyTakenException;
@@ -23,6 +24,10 @@ public class Server {
 
         Spark.delete("/db", new ClearHandler(data));
         Spark.post("/user", new RegisterHandler(data));
+
+        Spark.path("/game", () -> {
+            Spark.post("", new CreateGameHandler(data));
+        });
 
         Spark.exception(BadRequestException.class, new ServerExceptionHandler<>(HttpURLConnection.HTTP_BAD_REQUEST));
         Spark.exception(UnauthorizedException.class, new ServerExceptionHandler<>(HttpURLConnection.HTTP_UNAUTHORIZED));

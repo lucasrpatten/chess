@@ -1,5 +1,7 @@
 package dataaccess;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 
 import model.GameData;
@@ -33,4 +35,9 @@ public class GameDAO {
         games.remove(gameData.gameID());
         games.put(gameData.gameID(), gameData);
     }
+
+    public Collection<GameData> listGames() throws DataAccessException {
+        return Collections.unmodifiableCollection(games.values());
+    }
+
 }

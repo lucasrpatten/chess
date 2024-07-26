@@ -1,5 +1,7 @@
 package service;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -150,4 +152,83 @@ public class GameServiceTests {
             gameService.join(TeamColor.WHITE, 9999, authToken);
         });
     }
+
+    @Test
+    @Order(11)
+    @DisplayName("Create Game with Duplicate Game Name")
+    public void createGameWithDuplicateName() throws ServerException {
+        // Create a game with a given name
+        gameService.create("Duplicate Game", authToken);
+
+        // Attempt to create another game with the same name (which is allowed)
+        assertDoesNotThrow(() -> {
+            gameService.create("Duplicate Game", authToken);
+        });
+    }
+
+    @Test
+    @Order(12)
+    @DisplayName("Join Game with Invalid Game ID")
+    public void joinGameWithInvalidGameID() throws ServerException {
+        // Try joining a game with a non-existent game ID
+        assertThrows(BadRequestException.class, () -> {
+            gameService.join(TeamColor.WHITE, -1, authToken);
+        });
+    }
+
+    @Test
+    @Order(13)
+    @DisplayName("Create Game with Empty Game Name")
+    public void createGameWithEmptyGameName() {
+        // Attempt to create a game with an empty name
+        assertThrows(BadRequestException.class, () -> {
+            gameService.create(null, authToken);
+        });
+    }
+
+    @Test
+    @Order(14)
+    @DisplayName("Join Game with Invalid Team Color")
+    public void joinGameWithInvalidTeamColor() throws ServerException {
+        CreateGameResult createResult = gameService.create("Test Game", authToken);
+
+        // Attempt to join with an invalid team color (assuming invalid color is not
+        // handled)
+        assertThrows(BadRequestException.class, () -> {
+            gameService.join(null, createResult.gameID(), authToken);
+        });
+    }
+
+    @Test
+    @Order(15)
+    @DisplayName("Create Game Without Auth Token")
+    public void createGameWithoutAuthToken() {
+        // Attempt to create a game without an auth token
+        assertThrows(UnauthorizedException.class, () -> {
+            gameService.create("Game Without Auth Token", null);
+        });
+    }
+
+    @Test
+    @Order(16)
+    @DisplayName("Join Game Without Auth Token")
+    public void joinGameWithoutAuthToken() throws ServerException {
+        CreateGameResult createResult = gameService.create("Test Game", authToken);
+
+        // Attempt to join a game without an auth token
+        assertThrows(UnauthorizedException.class, () -> {
+            gameService.join(TeamColor.WHITE, createResult.gameID(), null);
+        });
+    }
+
+    @Test
+    @Order(17)
+    @DisplayName("Create Game with Invalid Auth Token Length")
+    public void createGameWithInvalidAuthTokenLength() {
+        // Attempt to create a game with an invalid auth token length (e.g., too short)
+        assertThrows(UnauthorizedException.class, () -> {
+            gameService.create("Game with Invalid Token", "shortToken");
+        });
+    }
+
 }

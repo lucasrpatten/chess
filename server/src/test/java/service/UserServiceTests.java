@@ -134,4 +134,61 @@ public class UserServiceTests {
             userService.logout("invalidToken");
         });
     }
+
+    @Test
+    @Order(8)
+    @DisplayName("Register User with Empty Username")
+    public void registerUserWithEmptyUsername() {
+        UserData userWithEmptyUsername = new UserData(null, "somePassword", "someEmail@mail.com");
+        assertThrows(BadRequestException.class, () -> {
+            userService.register(userWithEmptyUsername);
+        });
+    }
+
+    @Test
+    @Order(9)
+    @DisplayName("Register User with Empty Password")
+    public void registerUserWithEmptyPassword() {
+        UserData userWithEmptyPassword = new UserData("someUsername", null, "someEmail@mail.com");
+        assertThrows(BadRequestException.class, () -> {
+            userService.register(userWithEmptyPassword);
+        });
+    }
+
+    @Test
+    @Order(10)
+    @DisplayName("Register User with Empty Email")
+    public void registerUserWithInvalidEmail() {
+        UserData userWithInvalidEmail = new UserData("someUsername", "somePassword", null);
+        assertThrows(BadRequestException.class, () -> {
+            userService.register(userWithInvalidEmail);
+        });
+    }
+
+    @Test
+    @Order(11)
+    @DisplayName("Login with Non-Registered User")
+    public void loginWithNonRegisteredUser() {
+        // Attempt to login with a username that does not exist
+        LoginRequest loginRequest = new LoginRequest("nonExistingUser", "somePassword");
+        assertThrows(UnauthorizedException.class, () -> {
+            userService.login(loginRequest);
+        });
+    }
+
+    @Test
+    @Order(12)
+    @DisplayName("Login with Maximum Length Username and Password")
+    public void loginWithMaxLengthCredentials() throws ServerException {
+        String maxLengthUsername = "a".repeat(255); // Assuming max length is 255 characters
+        String maxLengthPassword = "a".repeat(255); // Assuming max length is 255 characters
+        UserData userWithMaxLengthCredentials = new UserData(maxLengthUsername, maxLengthPassword, "email@mail.com");
+        userService.register(userWithMaxLengthCredentials);
+
+        LoginRequest loginRequest = new LoginRequest(maxLengthUsername, maxLengthPassword);
+        AuthData authData = userService.login(loginRequest);
+        assertNotNull(authData);
+        assertEquals(maxLengthUsername, authData.username());
+    }
+
 }

@@ -19,7 +19,7 @@ public class CreateGameHandler extends RequestHandler<CreateGameRequest> {
     @Override
     protected Object getServiceResponse(DataAccess dataAccess, CreateGameRequest request, String token)
             throws ServerException {
-        return new GameService(dataAccess).create(request);
+        return new GameService(dataAccess).create(request.gameName(), token);
     }
 
 }

@@ -6,8 +6,8 @@ import dataaccess.DataAccessException;
 import model.AuthData;
 import model.CreateGameRequest;
 import model.GameData;
+import model.GameID;
 import model.GameList;
-import model.UserData;
 
 public class GameService {
     private final DataAccess dataAccess;
@@ -27,16 +27,16 @@ public class GameService {
         }
     }
 
-    public GameData create(CreateGameRequest gameReq) throws ServerException {
+    public GameID create(String gameName, String authToken) throws ServerException {
         try {
-            auth(gameReq.authToken());
-
-            if (gameReq.gameName() == null)
-                throw new ServerException("Game must have a name");
-            GameData game = new GameData(0, null, null, gameReq.gameName(), new ChessGame());
+            auth(authToken);
+            System.out.println(gameName);
+            if (gameName == null)
+                throw new BadRequestException("Error: Game must have a name");
+            GameData game = new GameData(0, null, null, gameName, new ChessGame());
             game = dataAccess.getGameDAO().addGame(game);
 
-            return game;
+            return new GameID(game.gameID());
         }
         catch (DataAccessException e) {
             throw new ServerException(e);
@@ -46,8 +46,9 @@ public class GameService {
     private AuthData auth(String authToken) throws ServerException {
         try {
             AuthData authData = dataAccess.getAuthDAO().getAuth(authToken);
-            if (authData == null)
-                throw new ServerException("Invalid auth token");
+            if (authData == null) {
+                throw new UnauthorizedException("Error: Invalid auth token");
+            }
             return authData;
         }
         catch (DataAccessException e) {

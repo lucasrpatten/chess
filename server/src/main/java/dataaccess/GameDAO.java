@@ -12,7 +12,7 @@ public class GameDAO {
     public GameData addGame(GameData gameData) throws DataAccessException {
         if (gameData.game() == null)
             throw new DataAccessException("Cannot add a null game to the database");
-        int id = games.size();
+        int id = games.size() + 1;
         GameData game = new GameData(id, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(),
                 gameData.game());
         games.put(id, game);

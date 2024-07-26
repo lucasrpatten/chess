@@ -8,7 +8,7 @@ public class AuthDAO {
 
     public void addAuth(AuthData authData) throws DataAccessException {
         if (tokens.containsKey(authData.authToken())) {
-            throw new DataAccessException("Token already exists");
+            throw new DataAccessException("Error: Token already exists");
         }
         tokens.put(authData.authToken(), authData);
     }

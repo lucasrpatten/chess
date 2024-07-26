@@ -2,7 +2,6 @@ package handlers;
 
 import dataaccess.DataAccess;
 import model.EmptyRequest;
-import model.JoinGameRequest;
 import service.GameService;
 import service.ServerException;
 

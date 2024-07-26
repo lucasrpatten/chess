@@ -1,7 +1,6 @@
 package handlers;
 
 import dataaccess.DataAccess;
-import model.CreateGameRequest;
 import model.JoinGameRequest;
 import service.GameService;
 import service.ServerException;

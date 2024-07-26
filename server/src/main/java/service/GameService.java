@@ -16,6 +16,13 @@ public class GameService {
         this.dataAccess = dataAccess;
     }
 
+    /**
+     * Get a list of all games
+     * 
+     * @param authToken The auth token
+     * @return The list of games
+     * @throws ServerException if there is an error
+     */
     public GameListResult list(String authToken) throws ServerException {
         try {
             auth(authToken);
@@ -27,6 +34,14 @@ public class GameService {
         }
     }
 
+    /**
+     * Create a new game
+     * 
+     * @param gameName  The name of the game
+     * @param authToken The auth token
+     * @return The game ID
+     * @throws ServerException if there is an error
+     */
     public CreateGameResult create(String gameName, String authToken) throws ServerException {
         try {
             auth(authToken);
@@ -42,6 +57,15 @@ public class GameService {
         }
     }
 
+    /**
+     * Join a game
+     * 
+     * @param color     The color of the player joining
+     * @param gameID    The ID of the game to join
+     * @param authToken The auth token of the player
+     * @return null
+     * @throws ServerException if there is an error
+     */
     public Object join(TeamColor color, int gameID, String authToken) throws ServerException {
         try {
             String username = auth(authToken).username();
@@ -71,6 +95,13 @@ public class GameService {
         }
     }
 
+    /**
+     * Verify an auth token
+     * 
+     * @param authToken the auth token
+     * @return the auth data
+     * @throws ServerException if there is an error
+     */
     private AuthData auth(String authToken) throws ServerException {
         try {
             AuthData authData = dataAccess.getAuthDAO().getAuth(authToken);

@@ -18,6 +18,13 @@ public class UserService {
         this.dataAccess = dataAccess;
     }
 
+    /**
+     * Register a new user
+     * 
+     * @param user the user to register
+     * @return the auth data
+     * @throws ServerException if there is an error
+     */
     public AuthData register(UserData user) throws ServerException {
         try {
             if (user == null) {
@@ -48,6 +55,13 @@ public class UserService {
     }
 
     // this is pretty insecure but idrc cause it's only for school, not production
+    /**
+     * Log in a user
+     * 
+     * @param loginRequest the login request
+     * @return the auth data
+     * @throws ServerException if there is an error
+     */
     public AuthData login(LoginRequest loginRequest) throws ServerException {
         try {
             if (!dataAccess.getUserDAO().userExists(loginRequest.username())) {
@@ -67,6 +81,12 @@ public class UserService {
         }
     }
 
+    /**
+     * Log out a user
+     * 
+     * @param authToken the auth token of the user
+     * @throws ServerException if there is an error
+     */
     public void logout(String authToken) throws ServerException {
         try {
             AuthData authData = dataAccess.getAuthDAO().getAuth(authToken);
@@ -81,6 +101,9 @@ public class UserService {
     }
 
     // Function from https://stackoverflow.com/a/56628391/15517956
+    /**
+     * @return a new auth token
+     */
     private String generateAuthToken() {
         byte[] bytes = new byte[24];
         random.nextBytes(bytes);

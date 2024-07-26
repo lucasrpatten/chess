@@ -10,6 +10,11 @@ public class ClearService {
         this.dataAccess = dataAccess;
     }
 
+    /**
+     * Clears the database
+     * 
+     * @throws ServerException if there is an error
+     */
     public void clear() throws ServerException {
         try {
             dataAccess.getAuthDAO().clear();

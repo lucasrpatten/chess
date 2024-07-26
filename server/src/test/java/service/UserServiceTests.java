@@ -18,16 +18,14 @@ import model.LoginRequest;
 import model.UserData;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class ServiceTests {
+public class UserServiceTests {
 
     private static UserData existingUser;
     private static UserData newUser;
 
     private static DataAccess dataAccess;
     private UserService userService;
-    private GameService gameService;
     private ClearService clearService;
-    private String authToken;
 
     @BeforeAll
     public static void init() {
@@ -40,7 +38,7 @@ public class ServiceTests {
     @BeforeEach
     public void setup() throws ServerException {
         userService = new UserService(dataAccess);
-        gameService = new GameService(dataAccess);
+        new GameService(dataAccess);
         clearService = new ClearService(dataAccess);
         // Clear database before each test
         clearService.clear();
@@ -92,7 +90,7 @@ public class ServiceTests {
 
         assertNotNull(authData);
         assertEquals(newUser.username(), authData.username());
-        authToken = authData.authToken();
+        authData.authToken();
     }
 
     @Test

@@ -10,9 +10,14 @@ public class ClearService {
         this.dataAccess = dataAccess;
     }
 
-    public void clear() throws DataAccessException {
-        dataAccess.getAuthDAO().clear();
-        dataAccess.getUserDAO().clear();
-        dataAccess.getGameDAO().clear();
+    public void clear() throws ServerException {
+        try {
+            dataAccess.getAuthDAO().clear();
+            dataAccess.getUserDAO().clear();
+            dataAccess.getGameDAO().clear();
+        }
+        catch (DataAccessException e) {
+            throw new ServerException(e);
+        }
     }
 }

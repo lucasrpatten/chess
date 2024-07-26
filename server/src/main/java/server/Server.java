@@ -6,6 +6,7 @@ import dataaccess.DataAccess;
 import handlers.ClearHandler;
 import handlers.CreateGameHandler;
 import handlers.JoinGameHandler;
+import handlers.ListGamesHandler;
 import handlers.LoginHandler;
 import handlers.LogoutHandler;
 import handlers.RegisterHandler;
@@ -31,6 +32,7 @@ public class Server {
         Spark.path("/game", () -> {
             Spark.post("", new CreateGameHandler(data));
             Spark.put("", new JoinGameHandler(data));
+            Spark.get("", new ListGamesHandler(data));
         });
         Spark.path("/session", () -> {
             Spark.post("", new LoginHandler(data));

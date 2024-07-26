@@ -1,10 +1,7 @@
 package chess;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 
 import chess.ChessPiece.PieceType;
 
@@ -388,7 +385,7 @@ public class ChessGame {
         ChessPosition startPosition = move.getStartPosition();
         ChessPosition endPosition = move.getEndPosition();
         int startRow = startPosition.getRow();
-        int startCol = startPosition.getColumn();
+        // int startCol = startPosition.getColumn();
         boolean isWhite = piece.getTeamColor() == TeamColor.WHITE;
         ChessPosition kingStartPosition = isWhite ? new ChessPosition(1, 5) : new ChessPosition(8, 5);
         ChessPosition kingsideKingEndPosition = isWhite ? new ChessPosition(1, 7) : new ChessPosition(8, 7);

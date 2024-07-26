@@ -1,13 +1,13 @@
 package service;
 
 import chess.ChessGame;
+import chess.ChessGame.TeamColor;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import model.AuthData;
-import model.CreateGameRequest;
 import model.GameData;
-import model.GameID;
-import model.GameList;
+import model.CreateGameResult;
+import model.GameListResult;
 
 public class GameService {
     private final DataAccess dataAccess;
@@ -16,18 +16,18 @@ public class GameService {
         this.dataAccess = dataAccess;
     }
 
-    public GameList list(String authToken) throws ServerException {
+    public GameListResult list(String authToken) throws ServerException {
         try {
             auth(authToken);
 
-            return new GameList(dataAccess.getGameDAO().listGames());
+            return new GameListResult(dataAccess.getGameDAO().listGames());
         }
         catch (DataAccessException e) {
             throw new ServerException(e);
         }
     }
 
-    public GameID create(String gameName, String authToken) throws ServerException {
+    public CreateGameResult create(String gameName, String authToken) throws ServerException {
         try {
             auth(authToken);
             System.out.println(gameName);
@@ -36,7 +36,36 @@ public class GameService {
             GameData game = new GameData(0, null, null, gameName, new ChessGame());
             game = dataAccess.getGameDAO().addGame(game);
 
-            return new GameID(game.gameID());
+            return new CreateGameResult(game.gameID());
+        }
+        catch (DataAccessException e) {
+            throw new ServerException(e);
+        }
+    }
+
+    public Object join(TeamColor color, int gameID, String authToken) throws ServerException {
+        try {
+            String username = auth(authToken).username();
+            GameData game = dataAccess.getGameDAO().getGame(gameID);
+            if (game == null) {
+                throw new BadRequestException("Error: Game you are joining is not available");
+            }
+            if (color == null) {
+                throw new BadRequestException("Error: You must select a color");
+            }
+            if ((color == TeamColor.BLACK && game.blackUsername() != null)
+                    || (color == TeamColor.WHITE && game.whiteUsername() != null)) {
+                throw new BadRequestException("Error: Color is already taken");
+            }
+
+            if (color == TeamColor.BLACK) {
+                dataAccess.getGameDAO().updateGame(game.setBlackUsername(username));
+            }
+            else {
+                dataAccess.getGameDAO().updateGame(game.setWhiteUsername(username));
+            }
+
+            return null;
         }
         catch (DataAccessException e) {
             throw new ServerException(e);

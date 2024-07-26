@@ -23,13 +23,13 @@ public class UserService {
             if (user == null) {
                 throw new BadRequestException("Error: User cannot be null");
             }
-            else if (user.username() == null) {
+            if (user.username() == null) {
                 throw new BadRequestException("Error: Username cannot be null");
             }
-            else if (user.password() == null) {
+            if (user.password() == null) {
                 throw new BadRequestException("Error: Password cannot be null");
             }
-            else if (user.email() == null) {
+            if (user.email() == null) {
                 throw new BadRequestException("Error: Email cannot be null");
             }
 

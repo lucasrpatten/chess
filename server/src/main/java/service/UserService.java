@@ -51,7 +51,7 @@ public class UserService {
     public AuthData login(LoginRequest loginRequest) throws ServerException {
         try {
             if (!dataAccess.getUserDAO().userExists(loginRequest.username())) {
-                throw new UnauthorizedException("User %s does not exist".formatted(loginRequest.username()));
+                throw new UnauthorizedException("Error: User %s does not exist".formatted(loginRequest.username()));
             }
             if (!dataAccess.getUserDAO().validLogin(loginRequest)) {
                 throw new UnauthorizedException("Error: Wrong password");

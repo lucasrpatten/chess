@@ -5,6 +5,7 @@ import java.net.HttpURLConnection;
 import dataaccess.DataAccess;
 import handlers.ClearHandler;
 import handlers.CreateGameHandler;
+import handlers.LoginHandler;
 import handlers.RegisterHandler;
 import handlers.ServerExceptionHandler;
 import service.AlreadyTakenException;
@@ -27,6 +28,9 @@ public class Server {
 
         Spark.path("/game", () -> {
             Spark.post("", new CreateGameHandler(data));
+        });
+        Spark.path("/session", () -> {
+            Spark.post("", new LoginHandler(data));
         });
 
         Spark.exception(BadRequestException.class, new ServerExceptionHandler<>(HttpURLConnection.HTTP_BAD_REQUEST));

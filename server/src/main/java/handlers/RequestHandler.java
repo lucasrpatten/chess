@@ -20,7 +20,7 @@ public abstract class RequestHandler<T> implements Route {
     @Override
     public Object handle(Request request, Response response) throws ServerException {
         Gson serializer = new Gson();
-        String token = request.headers("authorization");
+        String token = request.headers("Authorization");
 
         T reqObj = null;
         Class<T> reqCls = getRequestClass();

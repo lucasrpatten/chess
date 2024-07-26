@@ -20,7 +20,6 @@ public class RegisterHandler extends RequestHandler<UserData> {
     protected AuthData getServiceResponse(DataAccess dataAccess, UserData request, String token)
             throws ServerException {
         return new UserService(dataAccess).register(request);
-
     }
 
 }

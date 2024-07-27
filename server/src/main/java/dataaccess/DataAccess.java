@@ -5,9 +5,10 @@ import dataaccess.mem.MemUserDAO;
 
 public interface DataAccess {
 
-    MemAuthDAO getAuthDAO();
+    AuthDAO getAuthDAO();
 
-    UserDAO
+    UserDAO getUserDAO();
+
     GameDAO getGameDAO();
 
 }

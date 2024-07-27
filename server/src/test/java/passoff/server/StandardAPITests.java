@@ -50,7 +50,7 @@ public class StandardAPITests {
     public void setup() {
         serverFacade.clear();
 
-        //one user already logged in
+        // one user already logged in
         TestAuthResult regResult = serverFacade.register(existingUser);
         existingAuth = regResult.getAuthToken();
     }
@@ -104,7 +104,7 @@ public class StandardAPITests {
     @Order(4)
     @DisplayName("Normal User Registration")
     public void successRegister() {
-        //submit register request
+        // submit register request
         TestAuthResult registerResult = serverFacade.register(newUser);
 
         assertHttpOk(registerResult);
@@ -117,7 +117,7 @@ public class StandardAPITests {
     @Order(5)
     @DisplayName("Re-Register User")
     public void registerTwice() {
-        //submit register request trying to register existing user
+        // submit register request trying to register existing user
         TestAuthResult registerResult = serverFacade.register(existingUser);
 
         assertHttpForbidden(registerResult);
@@ -128,7 +128,7 @@ public class StandardAPITests {
     @Order(5)
     @DisplayName("Register Bad Request")
     public void failRegister() {
-        //attempt to register a user without a password
+        // attempt to register a user without a password
         TestUser registerRequest = new TestUser(newUser.getUsername(), null, newUser.getEmail());
 
         TestAuthResult registerResult = serverFacade.register(registerRequest);
@@ -141,7 +141,7 @@ public class StandardAPITests {
     @Order(6)
     @DisplayName("Normal Logout")
     public void successLogout() {
-        //log out existing user
+        // log out existing user
         TestResult result = serverFacade.logout(existingAuth);
 
         assertHttpOk(result);
@@ -151,8 +151,8 @@ public class StandardAPITests {
     @Order(7)
     @DisplayName("Invalid Auth Logout")
     public void failLogout() {
-        //log out user twice
-        //second logout should fail
+        // log out user twice
+        // second logout should fail
         serverFacade.logout(existingAuth);
         TestResult result = serverFacade.logout(existingAuth);
 
@@ -174,7 +174,7 @@ public class StandardAPITests {
     @Order(9)
     @DisplayName("Create with Bad Authentication")
     public void badAuthCreate() {
-        //log out user so auth is invalid
+        // log out user so auth is invalid
         serverFacade.logout(existingAuth);
 
         TestCreateResult createResult = serverFacade.createGame(createRequest, existingAuth);
@@ -187,16 +187,16 @@ public class StandardAPITests {
     @Order(10)
     @DisplayName("Join Created Game")
     public void goodJoin() {
-        //create game
+        // create game
         TestCreateResult createResult = serverFacade.createGame(createRequest, existingAuth);
 
-        //join as white
+        // join as white
         TestJoinRequest joinRequest = new TestJoinRequest(ChessGame.TeamColor.WHITE, createResult.getGameID());
 
-        //try join
+        // try join
         TestResult joinResult = serverFacade.joinPlayer(joinRequest, existingAuth);
 
-        //check
+        // check
         assertHttpOk(joinResult);
 
         TestListResult listResult = serverFacade.listGames(existingAuth);
@@ -210,14 +210,14 @@ public class StandardAPITests {
     @Order(11)
     @DisplayName("Join Bad Authentication")
     public void badAuthJoin() {
-        //create game
+        // create game
         TestCreateResult createResult = serverFacade.createGame(createRequest, existingAuth);
 
-        //try join as white
+        // try join as white
         TestJoinRequest joinRequest = new TestJoinRequest(ChessGame.TeamColor.WHITE, createResult.getGameID());
         TestResult joinResult = serverFacade.joinPlayer(joinRequest, existingAuth + "bad stuff");
 
-        //check
+        // check
         assertHttpUnauthorized(joinResult);
     }
 
@@ -225,14 +225,14 @@ public class StandardAPITests {
     @Order(11)
     @DisplayName("Join Bad Team Color")
     public void badColorJoin() {
-        //create game
+        // create game
         TestCreateResult createResult = serverFacade.createGame(createRequest, existingAuth);
 
-        //try join as white
+        // try join as white
         TestJoinRequest joinRequest = new TestJoinRequest(null, createResult.getGameID());
         TestResult joinResult = serverFacade.joinPlayer(joinRequest, existingAuth);
 
-        //check
+        // check
         assertHttpBadRequest(joinResult);
     }
 
@@ -240,20 +240,20 @@ public class StandardAPITests {
     @Order(11)
     @DisplayName("Join Steal Team Color")
     public void stealColorJoin() {
-        //create game
+        // create game
         TestCreateResult createResult = serverFacade.createGame(createRequest, existingAuth);
 
-        //add existing user as black
+        // add existing user as black
         TestJoinRequest joinRequest = new TestJoinRequest(ChessGame.TeamColor.BLACK, createResult.getGameID());
         serverFacade.joinPlayer(joinRequest, existingAuth);
 
-        //register second user
+        // register second user
         TestAuthResult registerResult = serverFacade.register(newUser);
 
-        //join request trying to also join  as black
+        // join request trying to also join as black
         TestResult joinResult = serverFacade.joinPlayer(joinRequest, registerResult.getAuthToken());
 
-        //check failed
+        // check failed
         assertHttpForbidden(joinResult);
     }
 
@@ -261,15 +261,15 @@ public class StandardAPITests {
     @Order(11)
     @DisplayName("Join Bad Game ID")
     public void badGameIDJoin() {
-        //create game
+        // create game
         createRequest = new TestCreateRequest("Bad Join");
-        TestCreateResult createResult = serverFacade.createGame(createRequest, existingAuth);
+        serverFacade.createGame(createRequest, existingAuth);
 
-        //try join as white
+        // try join as white
         TestJoinRequest joinRequest = new TestJoinRequest(ChessGame.TeamColor.WHITE, null);
         TestResult joinResult = serverFacade.joinPlayer(joinRequest, existingAuth);
 
-        //check
+        // check
         assertHttpBadRequest(joinResult);
     }
 
@@ -288,54 +288,56 @@ public class StandardAPITests {
     @Order(12)
     @DisplayName("List Multiple Games")
     public void gamesList() {
-        //register a few users to create games
+        // register a few users to create games
         TestUser userA = new TestUser("a", "A", "a.A");
         TestUser userB = new TestUser("b", "B", "b.B");
         TestUser userC = new TestUser("c", "C", "c.C");
-        
+
         TestAuthResult authA = serverFacade.register(userA);
         TestAuthResult authB = serverFacade.register(userB);
         TestAuthResult authC = serverFacade.register(userC);
 
-        //create games
+        // create games
         Collection<TestListEntry> expectedList = new HashSet<>();
 
-        //1 as black from A
+        // 1 as black from A
         String game1Name = "I'm numbah one!";
         TestCreateResult game1 = serverFacade.createGame(new TestCreateRequest(game1Name), authA.getAuthToken());
-        serverFacade.joinPlayer(new TestJoinRequest(ChessGame.TeamColor.BLACK, game1.getGameID()), authA.getAuthToken());
+        serverFacade.joinPlayer(new TestJoinRequest(ChessGame.TeamColor.BLACK, game1.getGameID()),
+                authA.getAuthToken());
         expectedList.add(new TestListEntry(game1.getGameID(), game1Name, null, authA.getUsername()));
 
-
-        //1 as white from B
+        // 1 as white from B
         String game2Name = "Lonely";
         TestCreateResult game2 = serverFacade.createGame(new TestCreateRequest(game2Name), authB.getAuthToken());
-        serverFacade.joinPlayer(new TestJoinRequest(ChessGame.TeamColor.WHITE, game2.getGameID()), authB.getAuthToken());
+        serverFacade.joinPlayer(new TestJoinRequest(ChessGame.TeamColor.WHITE, game2.getGameID()),
+                authB.getAuthToken());
         expectedList.add(new TestListEntry(game2.getGameID(), game2Name, authB.getUsername(), null));
 
-
-        //1 of each from C
+        // 1 of each from C
         String game3Name = "GG";
         TestCreateResult game3 = serverFacade.createGame(new TestCreateRequest(game3Name), authC.getAuthToken());
-        serverFacade.joinPlayer(new TestJoinRequest(ChessGame.TeamColor.WHITE, game3.getGameID()), authC.getAuthToken());
-        serverFacade.joinPlayer(new TestJoinRequest(ChessGame.TeamColor.BLACK, game3.getGameID()), authA.getAuthToken());
+        serverFacade.joinPlayer(new TestJoinRequest(ChessGame.TeamColor.WHITE, game3.getGameID()),
+                authC.getAuthToken());
+        serverFacade.joinPlayer(new TestJoinRequest(ChessGame.TeamColor.BLACK, game3.getGameID()),
+                authA.getAuthToken());
         expectedList.add(new TestListEntry(game3.getGameID(), game3Name, authC.getUsername(), authA.getUsername()));
 
-
-        //C play self
+        // C play self
         String game4Name = "All by myself";
         TestCreateResult game4 = serverFacade.createGame(new TestCreateRequest(game4Name), authC.getAuthToken());
-        serverFacade.joinPlayer(new TestJoinRequest(ChessGame.TeamColor.WHITE, game4.getGameID()), authC.getAuthToken());
-        serverFacade.joinPlayer(new TestJoinRequest(ChessGame.TeamColor.BLACK, game4.getGameID()), authC.getAuthToken());
+        serverFacade.joinPlayer(new TestJoinRequest(ChessGame.TeamColor.WHITE, game4.getGameID()),
+                authC.getAuthToken());
+        serverFacade.joinPlayer(new TestJoinRequest(ChessGame.TeamColor.BLACK, game4.getGameID()),
+                authC.getAuthToken());
         expectedList.add(new TestListEntry(game4.getGameID(), game4Name, authC.getUsername(), authC.getUsername()));
 
-
-        //list games
+        // list games
         TestListResult listResult = serverFacade.listGames(existingAuth);
         assertHttpOk(listResult);
         Collection<TestListEntry> returnedList = new HashSet<>(Arrays.asList(listResult.getGames()));
 
-        //check
+        // check
         Assertions.assertEquals(expectedList, returnedList, "Returned Games list was incorrect");
     }
 
@@ -359,19 +361,15 @@ public class StandardAPITests {
         Assertions.assertNotEquals(loginOne.getAuthToken(), loginTwo.getAuthToken(),
                 "Authtoken returned by login matched authtoken from prior login");
 
-
         TestCreateResult createResult = serverFacade.createGame(createRequest, existingAuth);
         assertHttpOk(createResult);
-
 
         TestResult logoutResult = serverFacade.logout(existingAuth);
         assertHttpOk(logoutResult);
 
-
         TestJoinRequest joinRequest = new TestJoinRequest(ChessGame.TeamColor.WHITE, createResult.getGameID());
         TestResult joinResult = serverFacade.joinPlayer(joinRequest, loginOne.getAuthToken());
         assertHttpOk(joinResult);
-
 
         TestListResult listResult = serverFacade.listGames(loginTwo.getAuthToken());
         assertHttpOk(listResult);
@@ -383,47 +381,47 @@ public class StandardAPITests {
     @Order(14)
     @DisplayName("Clear Test")
     public void clearData() {
-        //create filler games
+        // create filler games
         serverFacade.createGame(new TestCreateRequest("Mediocre game"), existingAuth);
         serverFacade.createGame(new TestCreateRequest("Awesome game"), existingAuth);
 
-        //log in new user
+        // log in new user
         TestUser user = new TestUser("ClearMe", "cleared", "clear@mail.com");
         TestAuthResult registerResult = serverFacade.register(user);
 
-        //create and join game for new user
+        // create and join game for new user
         TestCreateResult createResult = serverFacade.createGame(new TestCreateRequest("Clear game"),
                 registerResult.getAuthToken());
 
         TestJoinRequest joinRequest = new TestJoinRequest(ChessGame.TeamColor.WHITE, createResult.getGameID());
         serverFacade.joinPlayer(joinRequest, registerResult.getAuthToken());
 
-        //do clear
+        // do clear
         TestResult clearResult = serverFacade.clear();
 
-        //test clear successful
+        // test clear successful
         assertHttpOk(clearResult);
 
-        //make sure neither user can log in
-        //first user
+        // make sure neither user can log in
+        // first user
         TestAuthResult loginResult = serverFacade.login(existingUser);
         assertHttpUnauthorized(loginResult);
 
-        //second user
+        // second user
         loginResult = serverFacade.login(user);
         assertHttpUnauthorized(loginResult);
 
-        //try to use old auth token to list games
+        // try to use old auth token to list games
         TestListResult listResult = serverFacade.listGames(existingAuth);
         assertHttpUnauthorized(listResult);
 
-        //log in new user and check that list is empty
+        // log in new user and check that list is empty
         registerResult = serverFacade.register(user);
         assertHttpOk(registerResult);
         listResult = serverFacade.listGames(registerResult.getAuthToken());
         assertHttpOk(listResult);
 
-        //check listResult
+        // check listResult
         Assertions.assertEquals(0, listResult.getGames().length, "list result did not return 0 games after clear");
     }
 
@@ -432,20 +430,20 @@ public class StandardAPITests {
     @DisplayName("Multiple Clears")
     public void multipleClear() {
 
-        //clear multiple times
+        // clear multiple times
         serverFacade.clear();
         serverFacade.clear();
         TestResult result = serverFacade.clear();
 
-        //make sure returned good
+        // make sure returned good
         assertHttpOk(result);
     }
 
     private void assertHttpOk(TestResult result) {
         Assertions.assertEquals(HttpURLConnection.HTTP_OK, serverFacade.getStatusCode(),
                 "Server response code was not 200 OK (message: %s)".formatted(result.getMessage()));
-        Assertions.assertFalse(result.getMessage() != null &&
-                        result.getMessage().toLowerCase(Locale.ROOT).contains("error"),
+        Assertions.assertFalse(
+                result.getMessage() != null && result.getMessage().toLowerCase(Locale.ROOT).contains("error"),
                 "Result returned an error message");
     }
 
@@ -464,8 +462,8 @@ public class StandardAPITests {
     private void assertHttpError(TestResult result, int statusCode, String message) {
         Assertions.assertEquals(statusCode, serverFacade.getStatusCode(),
                 "Server response code was not %d %s (message: %s)".formatted(statusCode, message, result.getMessage()));
-        Assertions.assertTrue(result.getMessage() != null &&
-                        result.getMessage().toLowerCase(Locale.ROOT).contains("error"),
+        Assertions.assertTrue(
+                result.getMessage() != null && result.getMessage().toLowerCase(Locale.ROOT).contains("error"),
                 "Invalid Request didn't return an error message");
     }
 

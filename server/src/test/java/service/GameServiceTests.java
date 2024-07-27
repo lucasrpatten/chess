@@ -17,6 +17,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import chess.ChessGame.TeamColor;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
+import dataaccess.mem.MemDataAccess;
 import model.AuthData;
 import model.CreateGameResult;
 import model.GameData;
@@ -35,7 +36,7 @@ public class GameServiceTests {
 
     @BeforeAll
     public static void init() throws ServerException {
-        dataAccess = new DataAccess();
+        dataAccess = new MemDataAccess();
         testUser = new UserData("TestUser", "testPassword", "test@mail.com");
     }
 

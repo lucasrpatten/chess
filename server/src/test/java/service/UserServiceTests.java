@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import dataaccess.DataAccess;
+import dataaccess.mem.MemDataAccess;
 import model.AuthData;
 import model.LoginRequest;
 import model.UserData;
@@ -32,7 +33,7 @@ public class UserServiceTests {
         existingUser = new UserData("ExistingUser", "existingUserPassword", "eu@mail.com");
         newUser = new UserData("NewUser", "newUserPassword", "nu@mail.com");
 
-        dataAccess = new DataAccess();
+        dataAccess = new MemDataAccess();
     }
 
     @BeforeEach

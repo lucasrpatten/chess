@@ -3,6 +3,7 @@ package server;
 import java.net.HttpURLConnection;
 
 import dataaccess.DataAccess;
+import dataaccess.mem.MemDataAccess;
 import handlers.ClearHandler;
 import handlers.CreateGameHandler;
 import handlers.JoinGameHandler;
@@ -24,7 +25,7 @@ public class Server {
 
         Spark.staticFiles.location("web");
 
-        DataAccess data = new DataAccess();
+        DataAccess data = new MemDataAccess();
 
         Spark.delete("/db", new ClearHandler(data));
         Spark.post("/user", new RegisterHandler(data));

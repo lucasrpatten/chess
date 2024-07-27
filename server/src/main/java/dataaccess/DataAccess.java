@@ -1,25 +1,13 @@
 package dataaccess;
 
-public class DataAccess {
-    private final AuthDAO authDAO;
-    private final UserDAO userDAO;
-    private final GameDAO gameDAO;
+import dataaccess.mem.MemAuthDAO;
+import dataaccess.mem.MemUserDAO;
 
-    public DataAccess() {
-        authDAO = new AuthDAO();
-        userDAO = new UserDAO();
-        gameDAO = new GameDAO();
-    }
+public interface DataAccess {
 
-    public AuthDAO getAuthDAO() {
-        return authDAO;
-    }
+    MemAuthDAO getAuthDAO();
 
-    public UserDAO getUserDAO() {
-        return userDAO;
-    }
+    UserDAO
+    GameDAO getGameDAO();
 
-    public GameDAO getGameDAO() {
-        return gameDAO;
-    }
 }

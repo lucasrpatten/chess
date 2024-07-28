@@ -72,7 +72,7 @@ public abstract class SqlDAO {
             isConfigured = true;
         }
         try (Connection conn = DatabaseManager.getConnection()) {
-            for (String statement : getStatements()) {
+            for (String statement : createQuery()) {
                 conn.createStatement().execute(statement);
             }
         }
@@ -86,5 +86,5 @@ public abstract class SqlDAO {
         T parse(ResultSet resultSet) throws SQLException;
     }
 
-    protected abstract String[] getStatements();
+    protected abstract String[] createQuery();
 }

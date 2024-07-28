@@ -40,7 +40,7 @@ public class SqlAuthDAO extends SqlDAO implements AuthDAO {
     }
 
     @Override
-    protected String[] getStatements() {
+    protected String[] createQuery() {
         String statement = """
                 CREATE TABLE IF NOT EXISTS `auth` (
                     `authToken` varchar(64) NOT NULL,

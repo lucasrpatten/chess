@@ -20,7 +20,6 @@ public class DatabaseTests {
 
     private static Class<?> databaseManagerClass;
 
-
     @BeforeAll
     public static void startServer() {
         server = new Server();
@@ -40,7 +39,6 @@ public class DatabaseTests {
         server.stop();
     }
 
-
     @Test
     @DisplayName("Persistence Test")
     @Order(1)
@@ -50,11 +48,11 @@ public class DatabaseTests {
         TestAuthResult regResult = serverFacade.register(TEST_USER);
         String auth = regResult.getAuthToken();
 
-        //create a game
+        // create a game
         String gameName = "Test Game";
         TestCreateResult createResult = serverFacade.createGame(new TestCreateRequest(gameName), auth);
 
-        //join the game
+        // join the game
         serverFacade.joinPlayer(new TestJoinRequest(ChessGame.TeamColor.WHITE, createResult.getGameID()), auth);
 
         Assertions.assertTrue(initialRowCount < getDatabaseRows(), "No new data added to database");
@@ -63,7 +61,7 @@ public class DatabaseTests {
         stopServer();
         startServer();
 
-        //list games using the auth
+        // list games using the auth
         TestListResult listResult = serverFacade.listGames(auth);
         Assertions.assertEquals(200, serverFacade.getStatusCode(), "Server response code was not 200 OK");
         Assertions.assertEquals(1, listResult.getGames().length, "Missing game(s) in database after restart");
@@ -74,7 +72,7 @@ public class DatabaseTests {
         Assertions.assertEquals(TEST_USER.getUsername(), game1.getWhiteUsername(),
                 "White player username changed after restart");
 
-        //test that we can still log in
+        // test that we can still log in
         serverFacade.login(TEST_USER);
         Assertions.assertEquals(200, serverFacade.getStatusCode(), "Unable to login");
     }
@@ -132,7 +130,8 @@ public class DatabaseTests {
                     tableAction.execute(resultSet.getString(1), conn);
                 }
             }
-        } catch (ReflectiveOperationException | SQLException e) {
+        }
+        catch (ReflectiveOperationException | SQLException e) {
             Assertions.fail(e.getMessage(), e);
         }
     }
@@ -147,7 +146,7 @@ public class DatabaseTests {
     }
 
     private Class<?> findDatabaseManager() throws ClassNotFoundException {
-        if(databaseManagerClass != null) {
+        if (databaseManagerClass != null) {
             return databaseManagerClass;
         }
 
@@ -157,11 +156,13 @@ public class DatabaseTests {
                 clazz.getDeclaredMethod("getConnection");
                 databaseManagerClass = clazz;
                 return clazz;
-            } catch (ReflectiveOperationException ignored) {}
+            }
+            catch (ReflectiveOperationException ignored) {
+            }
         }
-        throw new ClassNotFoundException("Unable to load database in order to verify persistence. " +
-                "Are you using DatabaseManager to set your credentials? " +
-                "Did you edit the signature of the getConnection method?");
+        throw new ClassNotFoundException("Unable to load database in order to verify persistence. "
+                + "Are you using DatabaseManager to set your credentials? "
+                + "Did you edit the signature of the getConnection method?");
     }
 
     @FunctionalInterface

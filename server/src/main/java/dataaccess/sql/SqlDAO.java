@@ -19,9 +19,9 @@ public abstract class SqlDAO {
         configure();
     }
 
-    protected <T> T query(String s, Parser<T> parser, Object... args) throws DataAccessException {
+    protected <T> T query(String queryStatement, Parser<T> parser, Object... args) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection();
-                PreparedStatement statement = conn.prepareStatement(s)) {
+                PreparedStatement statement = conn.prepareStatement(queryStatement)) {
             for (int i = 0; i < args.length; i++) {
                 if (args[i] instanceof ChessGame) {
                     statement.setString(i + 1, new Gson().toJson(args[i]));
@@ -40,9 +40,9 @@ public abstract class SqlDAO {
         }
     }
 
-    protected int update(String s, Object... args) throws DataAccessException {
+    protected int update(String queryStatement, Object... args) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection();
-                PreparedStatement statement = conn.prepareStatement(s, Statement.RETURN_GENERATED_KEYS)) {
+                PreparedStatement statement = conn.prepareStatement(queryStatement, Statement.RETURN_GENERATED_KEYS)) {
             for (int i = 0; i < args.length; i++) {
                 if (args[i] instanceof ChessGame) {
                     statement.setString(i + 1, new Gson().toJson(args[i]));

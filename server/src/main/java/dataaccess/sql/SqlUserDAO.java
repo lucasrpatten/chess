@@ -15,6 +15,9 @@ public class SqlUserDAO extends SqlDAO implements UserDAO {
 
     @Override
     public void addUser(UserData user) throws DataAccessException {
+        if (userExists(user.username())) {
+            throw new DataAccessException("The user already exists");
+        }
         String statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?);";
         String hashedPassword = BCrypt.hashpw(user.password(), BCrypt.gensalt());
         update(statement, user.username(), hashedPassword, user.email());

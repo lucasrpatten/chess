@@ -26,6 +26,9 @@ public class SqlAuthDAO extends SqlDAO implements AuthDAO {
 
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {
+        if (getAuth(authToken) == null) {
+            throw new DataAccessException("Error: Auth token does not exist, cannot delete");
+        }
         String statement = "DELETE FROM auth WHERE authToken = ?";
         update(statement, authToken);
     }

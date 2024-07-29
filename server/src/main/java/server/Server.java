@@ -3,7 +3,6 @@ package server;
 import java.net.HttpURLConnection;
 
 import dataaccess.DataAccess;
-import dataaccess.mem.MemDataAccess;
 import dataaccess.sql.SqlDataAccess;
 import handlers.ClearHandler;
 import handlers.CreateGameHandler;

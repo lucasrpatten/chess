@@ -27,16 +27,17 @@ public abstract class SqlDAO extends DatabaseManager {
 
     }
 
+    /**
+     * @param <T>            The type of the parser
+     * @param queryStatement The SQL query
+     * @param parser         The parser
+     * @param args           The arguments for the query
+     * @return The parsed result from the query
+     * @throws DataAccessException if there is an error
+     */
     protected <T> T query(String queryStatement, Parser<T> parser, Object... args) throws DataAccessException {
         try (Connection conn = getConnection(); PreparedStatement statement = conn.prepareStatement(queryStatement)) {
-            for (int i = 0; i < args.length; i++) {
-                if (args[i] instanceof ChessGame) {
-                    statement.setString(i + 1, new Gson().toJson(args[i]));
-                }
-                else {
-                    statement.setObject(i + 1, args[i]);
-                }
-            }
+            setParameters(statement, args);
 
             try (ResultSet res = statement.executeQuery()) {
                 return parser.parse(res);
@@ -47,17 +48,16 @@ public abstract class SqlDAO extends DatabaseManager {
         }
     }
 
+    /**
+     * @param queryStatement The SQL query
+     * @param args           The arguments for the query
+     * @return The id of the inserted row
+     * @throws DataAccessException if there is an error
+     */
     protected int update(String queryStatement, Object... args) throws DataAccessException {
         try (Connection conn = getConnection();
                 PreparedStatement statement = conn.prepareStatement(queryStatement, Statement.RETURN_GENERATED_KEYS)) {
-            for (int i = 0; i < args.length; i++) {
-                if (args[i] instanceof ChessGame) {
-                    statement.setString(i + 1, new Gson().toJson(args[i]));
-                }
-                else {
-                    statement.setObject(i + 1, args[i]);
-                }
-            }
+            setParameters(statement, args);
 
             statement.executeUpdate();
 
@@ -70,6 +70,17 @@ public abstract class SqlDAO extends DatabaseManager {
         }
         catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    private void setParameters(PreparedStatement statement, Object... args) throws SQLException {
+        for (int i = 0; i < args.length; i++) {
+            if (args[i] instanceof ChessGame) {
+                statement.setString(i + 1, new Gson().toJson(args[i]));
+            }
+            else {
+                statement.setObject(i + 1, args[i]);
+            }
         }
     }
 

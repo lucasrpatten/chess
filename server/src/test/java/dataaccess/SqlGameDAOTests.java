@@ -3,10 +3,8 @@ package dataaccess;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Collection;
-import java.util.HashSet;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,37 +17,26 @@ import org.junit.jupiter.api.TestMethodOrder;
 import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPosition;
-import dataaccess.sql.SqlAuthDAO;
 import dataaccess.sql.SqlDataAccess;
 import dataaccess.sql.SqlGameDAO;
-import dataaccess.sql.SqlUserDAO;
-import model.AuthData;
 import model.GameData;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class SqlGameDAOTests {
     private static SqlDataAccess dataAccess;
-    private static SqlAuthDAO sqlAuthDAO;
-    private static SqlUserDAO sqlUserDAO;
     private static SqlGameDAO sqlGameDAO;
-    private static AuthData testAuth1;
     private static GameData testGame1;
 
     @BeforeAll
     public static void setUp() throws Exception {
         dataAccess = new SqlDataAccess();
-        sqlAuthDAO = dataAccess.getAuthDAO();
-        sqlUserDAO = dataAccess.getUserDAO();
         sqlGameDAO = dataAccess.getGameDAO();
 
-        testAuth1 = new AuthData("auth1", "user1");
         testGame1 = new GameData(1, "user1", "user2", "game1", new ChessGame());
     }
 
     @BeforeEach
     public void clear() throws Exception {
-        sqlAuthDAO.clear();
-        sqlUserDAO.clear();
         sqlGameDAO.clear();
     }
 

@@ -10,6 +10,7 @@ import model.UserData;
 public class SqlUserDAO extends SqlDAO implements UserDAO {
 
     public SqlUserDAO() throws DataAccessException {
+        super();
     }
 
     @Override

@@ -15,6 +15,7 @@ import model.GameData;
 public class SqlGameDAO extends SqlDAO implements GameDAO {
 
     public SqlGameDAO() throws DataAccessException {
+        super();
     }
 
     @Override

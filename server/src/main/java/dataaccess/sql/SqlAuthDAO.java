@@ -7,11 +7,13 @@ import model.AuthData;
 public class SqlAuthDAO extends SqlDAO implements AuthDAO {
 
     public SqlAuthDAO() throws DataAccessException {
-        super();
     }
 
     @Override
     public void addAuth(AuthData authData) throws DataAccessException {
+        if (getAuth(authData.authToken()) != null) {
+            throw new DataAccessException("Error: Auth token already exists");
+        }
         String statement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
         update(statement, authData.authToken(), authData.username());
     }
@@ -44,7 +46,7 @@ public class SqlAuthDAO extends SqlDAO implements AuthDAO {
         String statement = """
                 CREATE TABLE IF NOT EXISTS `auth` (
                     `authToken` varchar(64) NOT NULL,
-                    `username` varchar(64) NOT NULL,
+                    `username` varchar(64) NOT NULL
                 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
                 """;
         return new String[] { statement };

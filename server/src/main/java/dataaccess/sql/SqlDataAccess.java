@@ -1,37 +1,39 @@
 package dataaccess.sql;
 
-import dataaccess.AuthDAO;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
-import dataaccess.GameDAO;
-import dataaccess.UserDAO;
 
 public class SqlDataAccess implements DataAccess {
 
-    private final AuthDAO authDAO;
+    private final SqlAuthDAO authDAO;
 
-    private final GameDAO gameDAO;
+    private final SqlGameDAO gameDAO;
 
-    private final UserDAO userDAO;
+    private final SqlUserDAO userDAO;
 
-    public SqlDataAccess() throws DataAccessException {
-        authDAO = new SqlAuthDAO();
-        gameDAO = new SqlGameDAO();
-        userDAO = new SqlUserDAO();
+    public SqlDataAccess() {
+        try {
+            authDAO = new SqlAuthDAO();
+            gameDAO = new SqlGameDAO();
+            userDAO = new SqlUserDAO();
+        }
+        catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public AuthDAO getAuthDAO() {
+    public SqlAuthDAO getAuthDAO() {
         return authDAO;
     }
 
     @Override
-    public GameDAO getGameDAO() {
+    public SqlGameDAO getGameDAO() {
         return gameDAO;
     }
 
     @Override
-    public UserDAO getUserDAO() {
+    public SqlUserDAO getUserDAO() {
         return userDAO;
     }
 

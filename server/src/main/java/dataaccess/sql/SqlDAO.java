@@ -12,16 +12,23 @@ import chess.ChessGame;
 import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
 
-public abstract class SqlDAO {
-    private static boolean isConfigured = false;
+public abstract class SqlDAO extends DatabaseManager {
 
     public SqlDAO() throws DataAccessException {
-        configure();
+        createDatabase();
+        try (Connection conn = getConnection()) {
+            for (String statement : createQuery()) {
+                conn.createStatement().execute(statement);
+            }
+        }
+        catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+
     }
 
     protected <T> T query(String queryStatement, Parser<T> parser, Object... args) throws DataAccessException {
-        try (Connection conn = DatabaseManager.getConnection();
-                PreparedStatement statement = conn.prepareStatement(queryStatement)) {
+        try (Connection conn = getConnection(); PreparedStatement statement = conn.prepareStatement(queryStatement)) {
             for (int i = 0; i < args.length; i++) {
                 if (args[i] instanceof ChessGame) {
                     statement.setString(i + 1, new Gson().toJson(args[i]));
@@ -41,7 +48,7 @@ public abstract class SqlDAO {
     }
 
     protected int update(String queryStatement, Object... args) throws DataAccessException {
-        try (Connection conn = DatabaseManager.getConnection();
+        try (Connection conn = getConnection();
                 PreparedStatement statement = conn.prepareStatement(queryStatement, Statement.RETURN_GENERATED_KEYS)) {
             for (int i = 0; i < args.length; i++) {
                 if (args[i] instanceof ChessGame) {
@@ -59,21 +66,6 @@ public abstract class SqlDAO {
                     return res.getInt(1);
                 }
                 return 0;
-            }
-        }
-        catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
-        }
-    }
-
-    private void configure() throws DataAccessException {
-        if (!isConfigured) {
-            DatabaseManager.createDatabase();
-            isConfigured = true;
-        }
-        try (Connection conn = DatabaseManager.getConnection()) {
-            for (String statement : createQuery()) {
-                conn.createStatement().execute(statement);
             }
         }
         catch (SQLException e) {

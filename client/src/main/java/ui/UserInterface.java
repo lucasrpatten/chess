@@ -42,4 +42,28 @@ public abstract class UserInterface implements BaseUI {
         }
         return String.join("\n", commands);
     }
+
+    @Override
+    public String runCmd(String cmd) {
+        String cmdCaller;
+        String args;
+        String[] c = cmd.split(cmd, 2);
+
+        if (c.length == 1) {
+            cmdCaller = c[0];
+            args = null;
+        }
+        else {
+            cmdCaller = c[0];
+            args = c[1];
+        }
+
+        for (FunctionPair<String> f : cmds.values()) {
+            if (f.getKeys().contains(cmdCaller)) {
+                return f.apply(args);
+            }
+        }
+
+        return help();
+    }
 }

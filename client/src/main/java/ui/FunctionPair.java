@@ -61,9 +61,9 @@ class FunctionPair<T> {
         this.functionWithArgs = function;
     }
 
-    T apply(String arg) {
-        if (functionWithArgs != null) {
-            return functionWithArgs.apply(arg);
+    T apply(String args) {
+        if (functionWithArgs != null && args != null) {
+            return functionWithArgs.apply(args);
         }
         else {
             return functionNoArgs.apply();
@@ -80,13 +80,5 @@ class FunctionPair<T> {
 
     public Arguments getArgs() {
         return args;
-    }
-
-    public GenericFunction<T> getFunctionNoArgs() {
-        return functionNoArgs;
-    }
-
-    public GenericFunctionWithArgs<T, String> getFunctionWithArgs() {
-        return functionWithArgs;
     }
 }

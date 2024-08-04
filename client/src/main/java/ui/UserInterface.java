@@ -1,17 +1,15 @@
 package ui;
 
-import ui.EscapeSequences;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class UserInterface implements BaseUI {
+public class UserInterface implements BaseUI {
 
-    private Map<String, FunctionPair<String>> cmds;
+    protected Map<String, FunctionPair<String>> cmds;
 
-    public UserInterface() {
+    UserInterface() {
         this.cmds = new LinkedHashMap<>();
         this.cmds.put("help", new FunctionPair<>(List.of("help", "h"), "Displays this help message.", this::help));
     }

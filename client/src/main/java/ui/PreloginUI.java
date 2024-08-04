@@ -8,9 +8,4 @@ public class PreloginUI extends UserInterface {
     PreloginUI() {
         super();
     }
-
-    @Override
-    public String runCmd(String cmd) {
-        return super.runCmd(cmd, args);
-    }
 }

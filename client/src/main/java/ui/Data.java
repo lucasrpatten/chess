@@ -35,6 +35,9 @@ public class Data {
 
     private List<Integer> gameIDs = new ArrayList<>();
 
+    private Data() {
+    }
+
     public List<Integer> getGameIDs() {
         return gameIDs;
     }
@@ -43,13 +46,13 @@ public class Data {
         gameIDs.add(gameID);
     }
 
-    public void removeGameID(int gameID) {
-        gameIDs.remove(gameIDs.indexOf(gameID));
-    }
+    // public void removeGameID(int gameID) {
+    // gameIDs.remove(gameIDs.indexOf(gameID));
+    // }
 
-    public void clearGameIDs() {
-        this.gameIDs = List.of();
-    }
+    // public void clearGameIDs() {
+    // this.gameIDs = List.of();
+    // }
 
     public List<GameData> getGameList() {
         return gameList;
@@ -65,9 +68,6 @@ public class Data {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    private Data() {
     }
 
     public void initializeRun(String url, int port, UserREPL ui) {

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Locale;
@@ -12,6 +13,7 @@ import com.google.gson.Gson;
 
 import model.AuthData;
 import model.GameData;
+import model.LoginRequest;
 import model.UserData;
 import ui.Data;
 
@@ -22,15 +24,24 @@ public class ServerFacade {
         this.url = url;
     }
 
-    public AuthData login(UserData userData) {
-        AuthData authData = 
+    public AuthData register(UserData user) {
+        AuthData authData = request("/user", "POST", user, AuthData.class);
+        Data.getInstance().setAuthToken(authData.authToken());
+        Data.getInstance().setUsername(user.username());
+        return authData;
     }
 
-    private <T> T get(String endpointUrl, String method, Object request, Class<T> responseType) {
+    public AuthData login(LoginRequest loginRequest) {
+        AuthData authData = request("/session", "POST", loginRequest, AuthData.class);
+        Data.getInstance().setAuthToken(authData.authToken());
+        return authData;
+    }
+
+    private <T> T request(String endpointUrl, String method, Object request, Class<T> responseType) {
         try {
             Gson gson = new Gson();
 
-            URL url = new URL(this.url + endpointUrl);
+            URL url = new URI(this.url).resolve(endpointUrl).toURL();
 
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod(method.toUpperCase());
@@ -53,8 +64,7 @@ public class ServerFacade {
             }
 
             if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                throw new RuntimeException("Failed : HTTP error code : " + connection.getResponseCode() + " Message: "
-                        + connection.getResponseMessage());
+                throw new RuntimeException("Failed. Message: " + connection.getResponseMessage());
             }
 
             String response = new String(connection.getInputStream().readAllBytes(), "UTF-8");
@@ -63,7 +73,7 @@ public class ServerFacade {
             }
             return null;
         }
-        catch (IOException e) {
+        catch (IOException | URISyntaxException e) {
             throw new RuntimeException("Error connecting to server: " + e.getMessage());
         }
     }

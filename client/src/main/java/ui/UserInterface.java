@@ -56,6 +56,8 @@ public class UserInterface implements BaseUI {
             args = c[1];
         }
 
+        cmdCaller = cmdCaller.toLowerCase();
+
         for (FunctionPair<String> f : cmds.values()) {
             if (f.getKeys().contains(cmdCaller)) {
                 return f.apply(args);

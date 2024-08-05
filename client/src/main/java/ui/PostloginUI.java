@@ -1,5 +1,7 @@
 package ui;
 
-public class PostloginUI {
-
+public class PostloginUI extends UserInterface {
+    PostloginUI() {
+        super();
+    }
 }

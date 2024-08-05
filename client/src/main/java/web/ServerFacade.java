@@ -7,12 +7,10 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Locale;
 
 import com.google.gson.Gson;
 
 import model.AuthData;
-import model.GameData;
 import model.LoginRequest;
 import model.UserData;
 import ui.Data;

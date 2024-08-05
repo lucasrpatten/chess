@@ -25,7 +25,7 @@ public class Data {
 
     private State state = State.LOGGED_OUT;
 
-    private UserInterface ui;
+    private UserInterface ui = new PreloginUI();
 
     public String getUsername() {
         return username;

@@ -75,9 +75,10 @@ public class PostloginUI extends UserInterface {
                 : ChessGame.TeamColor.BLACK;
         int gameNumber = Integer.parseInt(args[1]);
         Data.getInstance().getServerFacade().joinGame(color, gameNumber);
-
         return EscapeSequences.SET_TEXT_COLOR_GREEN + "Successfully joined game" + EscapeSequences.RESET_TEXT_COLOR;
     }
+
+    // hi
 
     public static int emptySpots(GameData game) {
         int whiteUser = game.whiteUsername() == null ? 0 : 1;

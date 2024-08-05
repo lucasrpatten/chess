@@ -1,5 +1,9 @@
 package ui;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import model.GameData;
 import web.ServerFacade;
 
 public class Data {
@@ -26,6 +30,34 @@ public class Data {
     private State state = State.LOGGED_OUT;
 
     private UserInterface ui = new PreloginUI();
+
+    private List<GameData> gameList;
+
+    private List<Integer> gameIDs = new ArrayList<>();
+
+    public List<Integer> getGameIDs() {
+        return gameIDs;
+    }
+
+    public void addGameID(int gameID) {
+        gameIDs.add(gameID);
+    }
+
+    public void removeGameID(int gameID) {
+        gameIDs.remove(gameIDs.indexOf(gameID));
+    }
+
+    public void clearGameIDs() {
+        this.gameIDs = List.of();
+    }
+
+    public List<GameData> getGameList() {
+        return gameList;
+    }
+
+    public void setGameList(List<GameData> gameList) {
+        this.gameList = gameList;
+    }
 
     public String getUsername() {
         return username;

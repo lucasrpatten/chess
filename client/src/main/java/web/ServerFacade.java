@@ -7,17 +7,24 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 import com.google.gson.Gson;
 
+import chess.ChessGame;
 import model.AuthData;
 import model.CreateGameRequest;
 import model.CreateGameResult;
 import model.EmptyRequest;
+import model.GameData;
 import model.GameListResult;
+import model.JoinGameRequest;
 import model.LoginRequest;
 import model.UserData;
 import ui.Data;
+import ui.PostloginUI;
 
 public class ServerFacade {
     private final String url;
@@ -54,8 +61,33 @@ public class ServerFacade {
         return request("/game", "POST", createReq, CreateGameResult.class);
     }
 
-    public GameListResult listGames() {
-        return request("/game", "GET", null, GameListResult.class);
+    public List<GameData> listGames() {
+        Comparator<GameData> comparator = new Comparator<GameData>() {
+            @Override
+            public int compare(GameData o1, GameData o2) {
+                int emptyo1 = PostloginUI.emptySpots(o1);
+                int emptyo2 = PostloginUI.emptySpots(o2);
+                if (emptyo1 != emptyo2) {
+                    return Integer.compare(emptyo1, emptyo2);
+                }
+
+                return Integer.compare(o1.gameID(), o2.gameID());
+            }
+        };
+
+        GameListResult result = request("/game", "GET", null, GameListResult.class);
+        List<GameData> games = new ArrayList<>(result.games());
+        games.sort(comparator);
+        Data.getInstance().setGameList(games);
+        return games;
+    }
+
+    public void joinGame(ChessGame.TeamColor color, int gameNumber) {
+        int gameID = Data.getInstance().getGameList().get(gameNumber - 1).gameID();
+        JoinGameRequest joinReq = new JoinGameRequest(color, gameID);
+        request("/game", "PUT", joinReq, EmptyRequest.class);
+        Data.getInstance().addGameID(gameID);
+        return;
     }
 
     private <T> T request(String endpointUrl, String method, Object request, Class<T> responseType) {

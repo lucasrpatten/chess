@@ -1,18 +1,17 @@
 package client;
 
-import java.util.Collection;
+import java.util.List;
 
 import org.junit.jupiter.api.*;
 
+import chess.ChessGame;
 import model.AuthData;
 import model.CreateGameRequest;
 import model.CreateGameResult;
 import model.GameData;
-import model.GameListResult;
 import model.LoginRequest;
 import model.UserData;
 import server.Server;
-import service.ClearService;
 import ui.Data;
 import web.ServerFacade;
 
@@ -128,9 +127,26 @@ public class ServerFacadeTests {
     @DisplayName("List Games Success")
     @Order(10)
     public void listGamesSuccess() {
-        GameListResult res = facade.listGames();
+        List<GameData> res = facade.listGames();
         Assertions.assertNotNull(res);
-        Assertions.assertFalse(res.games().isEmpty());
+        Assertions.assertFalse(res.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Join Game Fail")
+    @Order(11)
+    public void joinGameFailure() {
+        String oldAuth = Data.getInstance().getAuthToken();
+        Data.getInstance().setAuthToken("InvalidToken");
+        Assertions.assertThrows(Exception.class, () -> facade.joinGame(ChessGame.TeamColor.BLACK, 0));
+        Data.getInstance().setAuthToken(oldAuth);
+    }
+
+    @Test
+    @DisplayName("Join Game Success")
+    @Order(12)
+    public void joinGameSuccess() {
+        Assertions.assertDoesNotThrow(() -> facade.joinGame(ChessGame.TeamColor.BLACK, 1));
     }
 
 }

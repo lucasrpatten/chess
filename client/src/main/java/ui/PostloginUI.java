@@ -1,14 +1,11 @@
 package ui;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 
+import chess.ChessGame;
 import model.CreateGameRequest;
 import model.CreateGameResult;
 import model.GameData;
-import model.GameListResult;
 
 public class PostloginUI extends UserInterface {
     PostloginUI() {
@@ -17,6 +14,10 @@ public class PostloginUI extends UserInterface {
                 new Arguments(List.of("game_name")), "Create a new game.", this::createGame));
         this.cmds.put("list games",
                 new FunctionPair<>(List.of("listgames", "list", "lg", "l"), "List all games.", this::listGames));
+        this.cmds.put("join game",
+                new FunctionPair<>(List.of("joingame", "join", "j"),
+                        new Arguments(List.of("WHITE|BLACK", "game_number")), "Join a game with the given number.",
+                        this::joinGame));
         this.cmds.put("logout",
                 new FunctionPair<>(List.of("logout", "signout", "exit"), "Sign out of your account.", this::logout));
     }
@@ -33,30 +34,15 @@ public class PostloginUI extends UserInterface {
     }
 
     private String listGames() {
-        GameListResult req = Data.getInstance().getServerFacade().listGames();
-        List<GameData> games = new ArrayList<>(req.games());
+        List<GameData> games = Data.getInstance().getServerFacade().listGames();
         if (games.size() == 0) {
             return "No games found. Create one with `creategame`.";
         }
 
-        Comparator<GameData> comparator = new Comparator<GameData>() {
-            @Override
-            public int compare(GameData o1, GameData o2) {
-                int emptyo1 = emptySpots(o1);
-                int emptyo2 = emptySpots(o2);
-                if (emptyo1 != emptyo2) {
-                    return Integer.compare(emptyo1, emptyo2);
-                }
-
-                return Integer.compare(o1.gameID(), o2.gameID());
-            }
-        };
-
-        games.sort(comparator);
-
         String output = EscapeSequences.SET_TEXT_BOLD + EscapeSequences.SET_TEXT_COLOR_MAGENTA + "Games:\n"
                 + EscapeSequences.RESET_TEXT_BOLD_FAINT;
-        for (GameData game : games) {
+        for (int i = 0; i < games.size(); i++) {
+            GameData game = games.get(i);
             String gameOut = "\t";
             String white = game.whiteUsername() == null ? "Empty" : game.whiteUsername();
             String black = game.blackUsername() == null ? "Empty" : game.blackUsername();
@@ -69,15 +55,34 @@ public class PostloginUI extends UserInterface {
                     : EscapeSequences.SET_TEXT_COLOR_GREEN;
 
             String gameName = EscapeSequences.SET_TEXT_BOLD + game.gameName();
-            String gameID = EscapeSequences.SET_TEXT_ITALIC + "(" + game.gameID() + ")"
-                    + EscapeSequences.RESET_TEXT_COLOR + EscapeSequences.RESET_TEXT_ITALIC;
-            gameOut = gameOut + String.format(" %s %s : %s vs. %s\n", gameID, gameName, white, black);
+            String gameNumber = EscapeSequences.SET_TEXT_ITALIC + "(" + i + 1 + ")" + EscapeSequences.RESET_TEXT_COLOR
+                    + EscapeSequences.RESET_TEXT_ITALIC;
+            gameOut = gameOut + String.format(" %s %s : %s vs. %s\n", gameNumber, gameName, white, black);
 
             output += gameOut;
         }
 
         return output;
+    }
 
+    private String joinGame(String argString) {
+        String[] args = argString.split(" ");
+        if (args.length != 2) {
+            return "Invalid number of arguments. Use `help` for command info.";
+        }
+
+        ChessGame.TeamColor color = args[0].toLowerCase().equals("white") ? ChessGame.TeamColor.WHITE
+                : ChessGame.TeamColor.BLACK;
+        int gameNumber = Integer.parseInt(args[1]);
+        Data.getInstance().getServerFacade().joinGame(color, gameNumber);
+
+        return EscapeSequences.SET_TEXT_COLOR_GREEN + "Successfully joined game" + EscapeSequences.RESET_TEXT_COLOR;
+    }
+
+    public static int emptySpots(GameData game) {
+        int whiteUser = game.whiteUsername() == null ? 0 : 1;
+        int blackUser = game.blackUsername() == null ? 0 : 1;
+        return whiteUser + blackUser;
     }
 
     private String logout() {
@@ -85,9 +90,4 @@ public class PostloginUI extends UserInterface {
         return EscapeSequences.SET_TEXT_COLOR_RED + "Successfully logged out." + EscapeSequences.RESET_TEXT_COLOR;
     }
 
-    private int emptySpots(GameData game) {
-        int whiteUser = game.whiteUsername() == null ? 0 : 1;
-        int blackUser = game.blackUsername() == null ? 0 : 1;
-        return whiteUser + blackUser;
-    }
 }

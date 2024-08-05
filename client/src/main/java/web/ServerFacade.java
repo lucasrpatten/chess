@@ -11,6 +11,8 @@ import java.net.URL;
 import com.google.gson.Gson;
 
 import model.AuthData;
+import model.CreateGameRequest;
+import model.CreateGameResult;
 import model.EmptyRequest;
 import model.LoginRequest;
 import model.UserData;
@@ -39,12 +41,16 @@ public class ServerFacade {
         return authData;
     }
 
-    public void logout(AuthData authData) {
-        request("/session", "DELETE", authData, AuthData.class);
+    public void logout() {
+        request("/session", "DELETE", null, EmptyRequest.class);
         Data.getInstance().setAuthToken(null);
         Data.getInstance().setUsername(null);
         Data.getInstance().setState(Data.State.LOGGED_OUT);
         return;
+    }
+
+    public CreateGameResult createGame(CreateGameRequest createReq) {
+        return request("/game", "POST", createReq, CreateGameResult.class);
     }
 
     private <T> T request(String endpointUrl, String method, Object request, Class<T> responseType) {

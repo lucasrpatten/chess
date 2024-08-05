@@ -30,7 +30,6 @@ public class PreloginUI extends UserInterface {
         String password = args[1];
         String email = args[2];
         Data.getInstance().getServerFacade().register(new UserData(username, password, email));
-        Data.getInstance().setState(Data.State.LOGGED_IN);
         return "Successfully registered.";
     }
 
@@ -43,7 +42,6 @@ public class PreloginUI extends UserInterface {
         String username = args[0];
         String password = args[1];
         Data.getInstance().getServerFacade().login(new LoginRequest(username, password));
-        Data.getInstance().setState(Data.State.LOGGED_IN);
         return "Successfully logged in.";
     }
 }

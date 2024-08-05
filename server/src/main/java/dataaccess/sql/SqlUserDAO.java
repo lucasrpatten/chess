@@ -54,7 +54,7 @@ public class SqlUserDAO extends SqlDAO implements UserDAO {
                     `username` varchar(64) NOT NULL PRIMARY KEY,
                     `password` varchar(64) NOT NULL,
                     `email` varchar(64) NOT NULL
-                )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+                )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
                 """;
 
         return new String[] { statement };

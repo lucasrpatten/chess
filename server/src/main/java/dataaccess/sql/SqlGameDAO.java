@@ -27,7 +27,7 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
                     `whiteUsername` VARCHAR(64),
                     `blackUsername` VARCHAR(64),
                     `game` LONGTEXT NOT NULL
-                )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+                )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
                 """;
         return new String[] { statement };
     }

@@ -24,14 +24,15 @@ public class UserInterface implements BaseUI {
 
             String args = "";
 
-            callers = String.join(", ", f.getKeys());
-            callers = String.format("%s(%s)%s", EscapeSequences.SET_TEXT_ITALIC, callers,
-                    EscapeSequences.RESET_TEXT_ITALIC);
+            callers = String.join("|", f.getKeys());
+            callers = String.format("%s[%s]%s", EscapeSequences.SET_TEXT_BOLD, callers,
+                    EscapeSequences.RESET_TEXT_BOLD_FAINT);
             if (f.getArgs() != null) {
-                args = f.getArgs().toString();
+                args = EscapeSequences.SET_TEXT_BOLD + EscapeSequences.SET_TEXT_ITALIC + f.getArgs().toString()
+                        + EscapeSequences.RESET_TEXT_BOLD_FAINT + EscapeSequences.RESET_TEXT_ITALIC;
             }
 
-            helpMsg = String.format("%s%s:%s\n\t%s%s%s%s- %s",
+            helpMsg = String.format("%s%s:%s\n\t%s%s %s%s- %s",
                     EscapeSequences.SET_TEXT_BOLD + EscapeSequences.SET_TEXT_COLOR_MAGENTA, key,
                     EscapeSequences.RESET_TEXT_BOLD_FAINT, EscapeSequences.SET_TEXT_COLOR_BLUE, callers, args,
                     EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY, f.getHelp());

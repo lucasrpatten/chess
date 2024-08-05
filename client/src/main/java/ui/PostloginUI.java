@@ -78,8 +78,6 @@ public class PostloginUI extends UserInterface {
         return EscapeSequences.SET_TEXT_COLOR_GREEN + "Successfully joined game" + EscapeSequences.RESET_TEXT_COLOR;
     }
 
-    // hi
-
     public static int emptySpots(GameData game) {
         int whiteUser = game.whiteUsername() == null ? 0 : 1;
         int blackUser = game.blackUsername() == null ? 0 : 1;

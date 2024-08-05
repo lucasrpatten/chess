@@ -46,14 +46,6 @@ public class Data {
         gameIDs.add(gameID);
     }
 
-    // public void removeGameID(int gameID) {
-    // gameIDs.remove(gameIDs.indexOf(gameID));
-    // }
-
-    // public void clearGameIDs() {
-    // this.gameIDs = List.of();
-    // }
-
     public List<GameData> getGameList() {
         return gameList;
     }

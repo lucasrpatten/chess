@@ -1,10 +1,14 @@
 package client;
 
+import java.util.Collection;
+
 import org.junit.jupiter.api.*;
 
 import model.AuthData;
 import model.CreateGameRequest;
 import model.CreateGameResult;
+import model.GameData;
+import model.GameListResult;
 import model.LoginRequest;
 import model.UserData;
 import server.Server;
@@ -108,6 +112,25 @@ public class ServerFacadeTests {
         Data.getInstance().setAuthToken("InvalidToken");
         Assertions.assertThrows(Exception.class, () -> facade.createGame(new CreateGameRequest("GameName")));
         Data.getInstance().setAuthToken(oldAuth);
+    }
+
+    @Test
+    @DisplayName("List Games Fail")
+    @Order(9)
+    public void listGamesFailure() {
+        String oldAuth = Data.getInstance().getAuthToken();
+        Data.getInstance().setAuthToken("InvalidToken");
+        Assertions.assertThrows(Exception.class, () -> facade.listGames());
+        Data.getInstance().setAuthToken(oldAuth);
+    }
+
+    @Test
+    @DisplayName("List Games Success")
+    @Order(10)
+    public void listGamesSuccess() {
+        GameListResult res = facade.listGames();
+        Assertions.assertNotNull(res);
+        Assertions.assertFalse(res.games().isEmpty());
     }
 
 }

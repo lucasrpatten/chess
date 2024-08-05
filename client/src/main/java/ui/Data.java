@@ -54,7 +54,7 @@ public class Data {
         this.state = state;
         ui = switch (state) {
         case LOGGED_OUT -> new PreloginUI();
-        case LOGGED_IN -> new PreloginUI();
+        case LOGGED_IN -> new PostloginUI();
         // case IN_GAME -> new BaseUI();
         default -> throw new IllegalArgumentException("Unexpected value: " + state);
         };

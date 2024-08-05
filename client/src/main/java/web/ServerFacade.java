@@ -14,6 +14,7 @@ import model.AuthData;
 import model.CreateGameRequest;
 import model.CreateGameResult;
 import model.EmptyRequest;
+import model.GameListResult;
 import model.LoginRequest;
 import model.UserData;
 import ui.Data;
@@ -51,6 +52,10 @@ public class ServerFacade {
 
     public CreateGameResult createGame(CreateGameRequest createReq) {
         return request("/game", "POST", createReq, CreateGameResult.class);
+    }
+
+    public GameListResult listGames() {
+        return request("/game", "GET", null, GameListResult.class);
     }
 
     private <T> T request(String endpointUrl, String method, Object request, Class<T> responseType) {

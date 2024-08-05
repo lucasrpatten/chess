@@ -10,7 +10,11 @@ public class PreloginUI extends UserInterface {
 
         this.cmds.put("register", new FunctionPair<>(List.of("register", "reg", "r"),
                 new Arguments(List.of("username", "password", "email")), "Register a new user.", this::register));
-        this.cmds.put("quit", new FunctionPair<>(List.of("quit", "exit"), "Quit the program.", null));
+        this.cmds.put("quit", new FunctionPair<>(List.of("quit", "exit"), "Quit the program.", this::quit));
+    }
+
+    private String quit() {
+        return EscapeSequences.SET_TEXT_COLOR_RED + "Quitting...";
     }
 
     private String register(String argString) {

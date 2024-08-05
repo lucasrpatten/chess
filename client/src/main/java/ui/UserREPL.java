@@ -11,25 +11,30 @@ public class UserREPL {
 
         // Set initial state
         Data.getInstance().setState(Data.State.LOGGED_OUT);
-        Scanner scanner = new Scanner(System.in);
-        String res = "";
+        try (Scanner scanner = new Scanner(System.in)) {
+            String res = "";
 
-        while (!res.equals("quit") && !res.equals("exit")) {
-            // Print the initial prompt and stay on the same line
-            System.out.print("\r" + EscapeSequences.SET_TEXT_COLOR_YELLOW + Data.getInstance().getPrompt()
-                    + EscapeSequences.RESET_TEXT_COLOR);
-            System.out.flush(); // Ensure the prompt is visible
-            // Read user input
-            String line = scanner.nextLine();
+            while (!res.equals("quit") && !res.equals("exit")) {
+                // Print the initial prompt and stay on the same line
+                System.out.print("\r" + EscapeSequences.SET_TEXT_COLOR_YELLOW + Data.getInstance().getPrompt()
+                        + EscapeSequences.RESET_TEXT_COLOR);
+                System.out.flush(); // Ensure the prompt is visible
+                // Read user input
+                String line = scanner.nextLine();
 
-            // Process the input
-            String[] tokens = line.toLowerCase().split(" ");
-            res = tokens[0].toLowerCase();
-            String result = Data.getInstance().getUi().runCmd(line);
+                // Process the input
+                String[] tokens = line.toLowerCase().split(" ");
+                res = tokens[0].toLowerCase();
+                try {
+                    String result = Data.getInstance().getUi().runCmd(line);
+                    System.out.println(result);
+                }
+                catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
 
-            // Print the result on a new line
-            System.out.println(result);
-            System.out.print(EscapeSequences.RESET_TEXT_COLOR);
+                System.out.print(EscapeSequences.RESET_TEXT_COLOR);
+            }
         }
     }
 }

@@ -46,19 +46,22 @@ public class UserInterface implements BaseUI {
     public String runCmd(String cmd) {
         String cmdCaller;
         String args;
-        String[] c = cmd.split(cmd, 2);
 
-        if (c.length == 1) {
-            cmdCaller = c[0];
-            args = null;
+        // Split the command string into command and arguments
+        String[] parts = cmd.split(" ", 2);
+
+        if (parts.length == 1) {
+            cmdCaller = parts[0];
+            args = "";
         }
         else {
-            cmdCaller = c[0];
-            args = c[1];
+            cmdCaller = parts[0];
+            args = parts[1];
         }
 
         cmdCaller = cmdCaller.toLowerCase();
 
+        // Iterate over available commands and execute the matching one
         for (FunctionPair<String> f : cmds.values()) {
             if (f.getKeys().contains(cmdCaller)) {
                 return f.apply(args);
@@ -67,4 +70,5 @@ public class UserInterface implements BaseUI {
 
         return help();
     }
+
 }

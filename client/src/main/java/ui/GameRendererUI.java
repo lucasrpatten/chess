@@ -99,9 +99,9 @@ public abstract class GameRendererUI extends UserInterface {
         blackView.append("%s%s    h  g  f  e  d  c  b  a     %s\n".formatted(EscapeSequences.SET_BG_COLOR_DARK_GREEN,
                 EscapeSequences.SET_TEXT_COLOR_WHITE, EscapeSequences.RESET_BG_COLOR));
         for (int i = 0; i < 8; i++) {
-            blackView.append("%s %d ".formatted(EscapeSequences.SET_BG_COLOR_DARK_GREEN, 8 - i));
-            for (int j = 0; j < 8; j++) {
-                if ((i + j) % 2 == 0) {
+            blackView.append("%s %d ".formatted(EscapeSequences.SET_BG_COLOR_DARK_GREEN, i + 1));
+            for (int j = 7; j >= 0; --j) {
+                if ((i + j) % 2 == 1) {
                     blackView.append(EscapeSequences.SET_BG_COLOR_WHITE);
                 }
                 else {
@@ -109,8 +109,8 @@ public abstract class GameRendererUI extends UserInterface {
                 }
                 blackView.append(boardList[i][j]);
             }
-            blackView.append("%s%s %d %s\n".formatted(EscapeSequences.SET_BG_COLOR_DARK_GREEN,
-                    EscapeSequences.SET_TEXT_COLOR_WHITE, 8 - i, EscapeSequences.RESET_BG_COLOR));
+            blackView.append("%s%s %d  %s\n".formatted(EscapeSequences.SET_BG_COLOR_DARK_GREEN,
+                    EscapeSequences.SET_TEXT_COLOR_WHITE, i + 1, EscapeSequences.RESET_BG_COLOR));
         }
         blackView.append("%s%s    h  g  f  e  d  c  b  a     %s\n".formatted(EscapeSequences.SET_BG_COLOR_DARK_GREEN,
                 EscapeSequences.SET_TEXT_COLOR_WHITE, EscapeSequences.RESET_BG_COLOR));
@@ -122,9 +122,9 @@ public abstract class GameRendererUI extends UserInterface {
         whiteView.append("%s%s    a  b  c  d  e  f  g  h     %s\n".formatted(EscapeSequences.SET_BG_COLOR_DARK_GREEN,
                 EscapeSequences.SET_BG_COLOR_DARK_GREEN, EscapeSequences.RESET_BG_COLOR));
         for (int i = 7; i >= 0; i--) {
-            whiteView.append("%s %d ".formatted(EscapeSequences.SET_BG_COLOR_DARK_GREEN, 8 - i));
-            for (int j = 7; j >= 0; j--) {
-                if (((7 - i) + (7 - j)) % 2 == 0) {
+            whiteView.append("%s %d ".formatted(EscapeSequences.SET_BG_COLOR_DARK_GREEN, i + 1));
+            for (int j = 0; j < 8; j++) {
+                if (((7 - i) + (7 - j)) % 2 == 1) {
                     whiteView.append(EscapeSequences.SET_BG_COLOR_WHITE);
                 }
                 else {
@@ -132,8 +132,8 @@ public abstract class GameRendererUI extends UserInterface {
                 }
                 whiteView.append(boardList[i][j]);
             }
-            whiteView.append("%s%s %d %s\n".formatted(EscapeSequences.SET_BG_COLOR_DARK_GREEN,
-                    EscapeSequences.SET_TEXT_COLOR_WHITE, 8 - i, EscapeSequences.RESET_BG_COLOR));
+            whiteView.append("%s%s %d  %s\n".formatted(EscapeSequences.SET_BG_COLOR_DARK_GREEN,
+                    EscapeSequences.SET_TEXT_COLOR_WHITE, i + 1, EscapeSequences.RESET_BG_COLOR));
         }
         whiteView.append("%s%s    a  b  c  d  e  f  g  h     %s\n".formatted(EscapeSequences.SET_BG_COLOR_DARK_GREEN,
                 EscapeSequences.SET_BG_COLOR_DARK_GREEN, EscapeSequences.RESET_BG_COLOR));

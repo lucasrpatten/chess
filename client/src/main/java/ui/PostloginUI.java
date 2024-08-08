@@ -7,7 +7,7 @@ import model.CreateGameRequest;
 import model.CreateGameResult;
 import model.GameData;
 
-public class PostloginUI extends UserInterface {
+public class PostloginUI extends GameRendererUI {
     PostloginUI() {
         super();
         this.cmds.put("create game", new FunctionPair<>(List.of("creategame", "create", "cg", "c"),
@@ -15,11 +15,13 @@ public class PostloginUI extends UserInterface {
         this.cmds.put("list games",
                 new FunctionPair<>(List.of("listgames", "list", "lg", "l"), "List all games.", this::listGames));
         this.cmds.put("join game",
-                new FunctionPair<>(List.of("joingame", "join", "j"),
+                new FunctionPair<>(List.of("joingame", "join", "jg", "j"),
                         new Arguments(List.of("WHITE|BLACK", "game_number")), "Join a game with the given number.",
                         this::joinGame));
+        this.cmds.put("observe game", new FunctionPair<>(List.of("observegame", "observe", "og", "o"),
+                new Arguments(List.of("game_number")), "Observe a game with the given number.", this::observeGame));
         this.cmds.put("logout",
-                new FunctionPair<>(List.of("logout", "signout", "exit"), "Sign out of your account.", this::logout));
+                new FunctionPair<>(List.of("logout", "signout"), "Sign out of your account.", this::logout));
     }
 
     private String createGame(String argString) {
@@ -29,7 +31,7 @@ public class PostloginUI extends UserInterface {
         }
 
         CreateGameResult res = Data.getInstance().getServerFacade().createGame(new CreateGameRequest(argString));
-        return "%sSuccessfully created game with ID %d%s".formatted(EscapeSequences.SET_TEXT_COLOR_GREEN, res.gameID(),
+        return "%sSuccessfully created new game%s".formatted(EscapeSequences.SET_TEXT_COLOR_GREEN,
                 EscapeSequences.RESET_TEXT_COLOR);
     }
 
@@ -55,7 +57,7 @@ public class PostloginUI extends UserInterface {
                     : EscapeSequences.SET_TEXT_COLOR_GREEN;
 
             String gameName = EscapeSequences.SET_TEXT_BOLD + game.gameName();
-            String gameNumber = EscapeSequences.SET_TEXT_ITALIC + "(" + i + 1 + ")" + EscapeSequences.RESET_TEXT_COLOR
+            String gameNumber = EscapeSequences.SET_TEXT_ITALIC + "(" + (i + 1) + ")" + EscapeSequences.RESET_TEXT_COLOR
                     + EscapeSequences.RESET_TEXT_ITALIC;
             gameOut = gameOut + String.format(" %s %s : %s vs. %s\n", gameNumber, gameName, white, black);
 
@@ -75,13 +77,25 @@ public class PostloginUI extends UserInterface {
                 : ChessGame.TeamColor.BLACK;
         int gameNumber = Integer.parseInt(args[1]);
         Data.getInstance().getServerFacade().joinGame(color, gameNumber);
-        return EscapeSequences.SET_TEXT_COLOR_GREEN + "Successfully joined game" + EscapeSequences.RESET_TEXT_COLOR;
+        return "%sSuccessfully joined game%s\n\n%s".formatted(EscapeSequences.SET_TEXT_COLOR_GREEN, gameNumber,
+                EscapeSequences.RESET_TEXT_COLOR, getGameAsString(gameNumber));
     }
 
     public static int emptySpots(GameData game) {
         int whiteUser = game.whiteUsername() == null ? 0 : 1;
         int blackUser = game.blackUsername() == null ? 0 : 1;
         return whiteUser + blackUser;
+    }
+
+    private String observeGame(String argString) {
+        String[] args = argString.split(" ");
+        if (args.length != 1) {
+            return "Invalid number of arguments. Use `help` for command info.";
+        }
+
+        int gameNumber = Integer.parseInt(args[0]);
+
+        return getGameAsString(gameNumber);
     }
 
     private String logout() {

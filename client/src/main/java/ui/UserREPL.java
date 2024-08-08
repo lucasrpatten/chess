@@ -12,7 +12,7 @@ public class UserREPL {
         try (Scanner scanner = new Scanner(System.in)) {
             String res = "";
 
-            while (!res.equals("quit") && !res.equals("exit")) {
+            while (!res.equals("quit")) {
                 // Print the initial prompt and stay on the same line
                 System.out.print("\r" + EscapeSequences.SET_TEXT_COLOR_YELLOW + Data.getInstance().getPrompt()
                         + EscapeSequences.RESET_TEXT_COLOR);

@@ -13,6 +13,7 @@ import java.util.List;
 
 import com.google.gson.Gson;
 
+import chess.ChessBoard;
 import chess.ChessGame;
 import model.AuthData;
 import model.CreateGameRequest;
@@ -89,6 +90,8 @@ public class ServerFacade {
         Data.getInstance().addGameID(gameID);
         return;
     }
+
+
 
     private <T> T request(String endpointUrl, String method, Object request, Class<T> responseType) {
         try {

@@ -2,10 +2,7 @@ package websocket;
 
 import java.io.IOException;
 import java.util.Objects;
-import java.util.logging.Logger;
 
-import org.eclipse.jetty.io.EofException;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 
 import com.google.gson.Gson;
@@ -65,12 +62,23 @@ public class WebSocketHandler {
         }
 
         switch (cmd.getCommandType()) {
-        case JOIN_PLAYER -> joinPlayer(session, authData, authData.username(), gameData);
+        case JOIN_PLAYER -> joinPlayer(session, cmd, authData.username(), gameData);
         case JOIN_OBSERVER -> joinObserver(session, authData.username(), gameData);
         case MAKE_MOVE -> makeMove(session, cmd, authData.username(), gameData);
         case LEAVE -> leaveGame(session, authData.username(), gameData);
         case RESIGN -> resign(session, authData.username(), gameData);
         }
+    }
+
+    private void leaveGame(Session session, String username, GameData gameData) throws IOException {
+        manager.remove(gameData.gameID(), session);
+        ServerMessage msg = new ServerMessage(ServerMessageType.NOTIFICATION,
+                "%s %s".formatted(username,
+                        ((Objects.equals(username, gameData.blackUsername())
+                                || Objects.equals(username, gameData.whiteUsername())) ? " has left the game"
+                                        : " is no longer observing the game")));
+
+        manager.broadcast(gameData.gameID(), new Gson().toJson(msg), null);
     }
 
     private void joinObserver(Session session, String username, GameData gameData) throws IOException {

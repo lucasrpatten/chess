@@ -31,6 +31,16 @@ public class Data {
 
     private UserInterface ui = new PreloginUI();
 
+    private int gameNumber;
+
+    public void setGameNumber(int gameNumber) {
+        this.gameNumber = gameNumber;
+    }
+
+    public int getGameNumber() {
+        return gameNumber;
+    }
+
     private List<GameData> gameList;
 
     private List<Integer> gameIDs = new ArrayList<>();

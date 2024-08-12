@@ -10,6 +10,7 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 
 import com.google.gson.Gson;
 
+import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessMove;
 import chess.InvalidMoveException;
@@ -31,16 +32,18 @@ import org.eclipse.jetty.websocket.api.Session;
 
 @WebSocket
 public class WebSocketHandler {
-    private DataAccess dataAccess;
     private static final WebSocketHandler instance = new WebSocketHandler();
+
+    public static WebSocketHandler getInstance() {
+        return instance;
+    }
+
+    private DataAccess dataAccess;
+
     private final ConnectionManager manager = new ConnectionManager();
 
     public void setDataAccess(DataAccess dataAccess) {
         this.dataAccess = dataAccess;
-    }
-
-    public static WebSocketHandler getInstance() {
-        return instance;
     }
 
     @OnWebSocketConnect
@@ -51,6 +54,28 @@ public class WebSocketHandler {
     @OnWebSocketClose
     public void onClose(Session session, int statusCode, String reason) {
         manager.remove(session);
+    }
+
+    @OnWebSocketMessage
+    public void onMessage(Session session, String message) throws IOException {
+        UserGameCommand cmd = new Gson().fromJson(message, UserGameCommand.class);
+        DataPair dataPair = getData(session, cmd);
+        if (dataPair == null) {
+            return;
+        }
+        switch (cmd.getCommandType()) {
+        case CONNECT:
+            connect(session, cmd, dataPair);
+            break;
+
+        case MAKE_MOVE:
+            MakeMove moveCmd = new Gson().fromJson(message, MakeMove.class);
+            makeMove(session, moveCmd, dataPair);
+            break;
+
+        default:
+            break;
+        }
     }
 
     private DataPair getData(Session session, UserGameCommand cmd) throws IOException {
@@ -81,28 +106,6 @@ public class WebSocketHandler {
         manager.error(session, new Gson().toJson(new ErrorMsg(message)));
     }
 
-    @OnWebSocketMessage
-    public void onMessage(Session session, String message) throws IOException {
-        UserGameCommand cmd = new Gson().fromJson(message, UserGameCommand.class);
-        DataPair dataPair = getData(session, cmd);
-        if (dataPair == null) {
-            return;
-        }
-        switch (cmd.getCommandType()) {
-        case CONNECT:
-            connect(session, cmd, dataPair);
-            break;
-
-        case MAKE_MOVE:
-            MakeMove moveCmd = new Gson().fromJson(message, MakeMove.class);
-            makeMove(session, moveCmd, dataPair);
-            break;
-
-        default:
-            break;
-        }
-    }
-
     private void connect(Session session, UserGameCommand cmd, DataPair dataPair) throws IOException {
         Notification notification;
         String username = dataPair.getAuthData().username();
@@ -129,6 +132,7 @@ public class WebSocketHandler {
         GameData gameData = dataPair.getGameData();
         TeamColor userColor = getTeamColor(username, gameData);
         ChessMove move = cmd.getMove();
+
         if (userColor == null) {
             sendError(session, "Error: You are not playing in this game.");
             return;
@@ -137,19 +141,29 @@ public class WebSocketHandler {
             sendError(session, "Error: Game is over. No more moves can be made.");
             return;
         }
-        if (!gameData.game().getTeamTurn().equals(userColor)) {
+
+        TeamColor opponent = (userColor == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE);
+
+        if (!gameData.game().getTeamTurn().equals(opponent)) {
             sendError(session, "Error: It is not your turn.");
+            broadcastGame(session, gameData);
             return;
         }
 
-        if (!gameData.game().validMoves(move.getStartPosition()).contains(move)) {
-            sendError(session, "Error: That is not a valid move.");
+        ChessBoard board = gameData.game().getBoard();
+        if (board.getPiece(move.getStartPosition()) == null) {
+            sendError(session, "Error: You are trying to move a piece that does not exist.");
+            return;
+        }
+
+        if (board.getPiece(move.getStartPosition()).getTeamColor().equals(opponent)) {
+            sendError(session, "Error: You can only move your own pieces.");
             return;
         }
 
         try {
+            gameData.game().makeMove(move);
             Notification notif;
-            TeamColor opponent = userColor == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
 
             if (gameData.game().isInCheckmate(opponent)) {
                 notif = new Notification("Checkmate! %s is the winner.".formatted(opponent.toString().toLowerCase()));
@@ -174,10 +188,19 @@ public class WebSocketHandler {
             manager.broadcast(session, new Gson().toJson(loadGame));
             manager.send(session, new Gson().toJson(loadGame));
         }
+        catch (InvalidMoveException e) {
+            sendError(session, "That is not a valid move.");
+            return;
+        }
         catch (DataAccessException e) {
             sendError(session, "Error: Invalid Request");
             return;
         }
+    }
+
+    private void broadcastGame(Session session, GameData gameData) throws IOException {
+        LoadGame loadGame = new LoadGame(gameData.game());
+        manager.broadcast(session, new Gson().toJson(loadGame));
     }
 
     private TeamColor getTeamColor(String username, GameData gameData) {

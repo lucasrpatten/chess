@@ -100,20 +100,6 @@ public class ServerFacade {
         return;
     }
 
-    // public void leave() throws IOException {
-    // Data.getInstance().getWebSocketClient().leave();
-    // Data.getInstance().setGameNumber(0);
-    // Data.getInstance().setGame(null);
-    // Data.getInstance().setState(Data.State.LOGGED_IN);
-    // }
-
-    // public void resign() throws IOException {
-    // Data.getInstance().getWebSocketClient().resign();
-    // Data.getInstance().setGameNumber(0);
-    // Data.getInstance().setGame(null);
-    // Data.getInstance().setState(Data.State.LOGGED_IN);
-    // }
-
     private <T> T request(String endpointUrl, String method, Object request, Class<T> responseType) {
         try {
             Gson gson = new Gson();

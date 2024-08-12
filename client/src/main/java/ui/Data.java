@@ -63,11 +63,6 @@ public class Data {
         return gameID;
     }
 
-    public void resetGameNumber() {
-        gameNumber = 0;
-        gameID = 0;
-    }
-
     public int getGameNumber() {
         return gameNumber;
     }

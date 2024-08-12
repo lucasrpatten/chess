@@ -3,6 +3,8 @@ package websocket;
 import java.io.IOException;
 import java.util.Objects;
 
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 
@@ -10,10 +12,12 @@ import com.google.gson.Gson;
 
 import chess.ChessGame;
 import chess.InvalidMoveException;
+import chess.ChessGame.TeamColor;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import model.AuthData;
 import model.GameData;
+import server.Server;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 import websocket.messages.ServerMessage.ServerMessageType;
@@ -25,6 +29,16 @@ public class WebSocketHandler {
     private DataAccess dataAccess;
     private static final WebSocketHandler instance = new WebSocketHandler();
     private final ConnectionManagement manager = new ConnectionManagement();
+
+    @OnWebSocketConnect
+    public void onConnect(Session session) {
+        manager.add(0, session);
+    }
+
+    @OnWebSocketClose
+    public void onClose(Session session, int statusCode, String reason) {
+        manager.remove(session);
+    }
 
     public void setDataAccess(DataAccess dataAccess) {
         this.dataAccess = dataAccess;
@@ -64,8 +78,7 @@ public class WebSocketHandler {
         }
 
         switch (cmd.getCommandType()) {
-        case JOIN_PLAYER -> joinPlayer(session, cmd, authData.username(), gameData);
-        case JOIN_OBSERVER -> joinObserver(session, authData.username(), gameData);
+        case CONNECT -> join(session, cmd, authData.username(), gameData);
         case MAKE_MOVE -> makeMove(session, cmd, authData.username(), gameData);
         case LEAVE -> leaveGame(session, authData.username(), gameData);
         case RESIGN -> resign(session, authData.username(), gameData);
@@ -83,41 +96,114 @@ public class WebSocketHandler {
         manager.broadcast(gameData.gameID(), new Gson().toJson(msg), null);
     }
 
-    private void joinObserver(Session session, String username, GameData gameData) throws IOException {
+    private void join(Session session, UserGameCommand cmd, String username, GameData gameData) throws IOException {
         manager.add(gameData.gameID(), session);
-        ServerMessage msg = new ServerMessage(gameData.game());
-        manager.send(session, new Gson().toJson(msg));
-
-        ServerMessage notification = new ServerMessage(ServerMessageType.NOTIFICATION,
-                "%s is now watching the game".formatted(username));
-
-        manager.broadcast(gameData.gameID(), new Gson().toJson(notification), session);
+        if (username.equals(gameData.blackUsername()) || username.equals(gameData.whiteUsername())) {
+            joinPlayer(session, cmd, username, gameData);
+            return;
+        }
+        joinObserver(session, cmd, username, gameData);
     }
 
     private void joinPlayer(Session session, UserGameCommand cmd, String username, GameData gameData)
             throws IOException {
-        boolean success = false;
-        if (cmd.getPlayerColor() == ChessGame.TeamColor.WHITE) {
-            success = Objects.equals(gameData.whiteUsername(), username);
-        }
-        else if (cmd.getPlayerColor() == ChessGame.TeamColor.BLACK) {
-            success = Objects.equals(gameData.blackUsername(), username);
-        }
+        // try {
+        // AuthData auth = dataAccess.getAuthDAO().getAuth(cmd.getAuthString());
+        // GameData game = dataAccess.getGameDAO().getGame(cmd.getGameID());
 
-        if (!success) {
-            manager.error(session, "Error: You are not allowed to join this game");
-            return;
-        }
+        // TeamColor joining = (cmd.getPlayerColor() == TeamColor.WHITE) ?
+        // TeamColor.BLACK : TeamColor.WHITE;
+
+        // boolean correctColor;
+        // if (joining == TeamColor.WHITE) {
+        // correctColor = Objects.equals(gameData.whiteUsername(), auth.username());
+        // }
+        // else {
+        // correctColor = Objects.equals(gameData.blackUsername(), auth.username());
+        // }
+
+        // if (!correctColor) {
+        // manager.error(session, "Error: You are not allowed to join this game");
+        // return;
+        // }
+
+        // ServerMessage notif = new ServerMessage(ServerMessageType.NOTIFICATION,
+        // "%s joined the game as %s".formatted(auth.username(),
+        // cmd.getPlayerColor().toString()));
+        // manager.broadcast(gameData.gameID(), session, new Gson().toJson(notif));
+        // }
+        // catch (DataAccessException e) {
+        // manager.error(session, "Unknown error: " + e.getMessage());
+        // return;
+        // }
 
         manager.add(gameData.gameID(), session);
+        String color = (username.equals(gameData.blackUsername())) ? "white" : "black";
         ServerMessage msg = new ServerMessage(gameData.game());
         manager.send(session, new Gson().toJson(msg));
+        ServerMessage notification = new ServerMessage(ServerMessageType.NOTIFICATION,
+                "%s joined the game as %s".formatted(username, color));
+        manager.broadcast(session, new Gson().toJson(notification));
 
-        ServerMessage notification = new ServerMessage(ServerMessageType.NOTIFICATION, "%s joined the game as color %s."
-                .formatted(username, ((cmd.getPlayerColor() == ChessGame.TeamColor.WHITE) ? "white" : "black")));
-
-        manager.broadcast(gameData.gameID(), new Gson().toJson(notification), session);
+        // ServerMessage notification = new
+        // ServerMessage(ServerMessageType.NOTIFICATION, "%s joined the game as %s"
+        // .formatted(username, (cmd.getPlayerColor() == TeamColor.WHITE) ? "black" :
+        // "white"));
+        // manager.send(session, new Gson().toJson(notification));
     }
+
+    private void joinObserver(Session session, UserGameCommand cmd, String username, GameData gameData)
+            throws IOException {
+        manager.add(gameData.gameID(), session);
+        // ServerMessage notif = new ServerMessage(ServerMessageType.NOTIFICATION,
+        // "%s".formatted(new Gson().toJson(gameData)));
+        // manager.broadcast(session, new Gson().toJson(notif));
+        // String color = (username.equals(gameData.blackUsername())) ? "white" :
+        // "black";
+        ServerMessage msg = new ServerMessage(gameData.game());
+        manager.send(session, msg.getMessage());
+        // ServerMessage msg = new ServerMessage(gameData.game());
+        // manager.send(session, "AMOGUS");
+        // manager.send(session, new Gson().toJson(msg));
+
+        // ServerMessage msg = new ServerMessage(gameData.game());
+        // manager.send(session, new Gson().toJson(msg));
+        // ServerMessage notification = new
+        // ServerMessage(ServerMessageType.NOTIFICATION,
+        // "%s is now watching the game".formatted(username));
+
+        // manager.send(session, new Gson().toJson(notification));
+    }
+
+    // private void joinPlayer(Session session, UserGameCommand cmd, String
+    // username, GameData gameData)
+    // throws IOException {
+    // boolean success = false;
+    // if (cmd.getPlayerColor() == ChessGame.TeamColor.WHITE) {
+    // success = Objects.equals(gameData.whiteUsername(), username);
+    // }
+    // else if (cmd.getPlayerColor() == ChessGame.TeamColor.BLACK) {
+    // success = Objects.equals(gameData.blackUsername(), username);
+    // }
+
+    // if (!success) {
+    // manager.error(session, "Error: You are not allowed to join this game");
+    // return;
+    // }
+
+    // manager.add(gameData.gameID(), session);
+    // ServerMessage msg = new ServerMessage(gameData.game());
+    // manager.send(session, new Gson().toJson(msg));
+
+    // ServerMessage notification = new
+    // ServerMessage(ServerMessageType.NOTIFICATION, "%s joined the game as color
+    // %s."
+    // .formatted(username, ((cmd.getPlayerColor() == ChessGame.TeamColor.WHITE) ?
+    // "white" : "black")));
+
+    // manager.broadcast(gameData.gameID(), new Gson().toJson(notification),
+    // session);
+    // }
 
     private void makeMove(Session session, UserGameCommand cmd, String username, GameData gameData) throws IOException {
         if (cmd.getMove() == null) {

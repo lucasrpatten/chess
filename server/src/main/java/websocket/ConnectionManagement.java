@@ -22,18 +22,42 @@ public class ConnectionManagement {
         }
     }
 
-    public void remove(int gameID, Session session) {
-        if (sessions.containsKey(gameID)) {
-            sessions.get(gameID).remove(session);
+    public void remove(Session session) {
+        for (Map.Entry<Integer, Set<Session>> entry : sessions.entrySet()) {
+            if (entry.getValue().contains(session)) {
+                entry.getValue().remove(session);
+                return;
+            }
         }
     }
 
-    public void broadcast(int gameID, String message, Session session) throws IOException {
-        for (Session s : sessions.get(gameID)) {
-            if (s != session) {
-                send(s, message);
+    public void broadcast(Session session, String message) throws IOException {
+        // Retrieve the gameID associated with the session
+        Integer gameID = getGameIDForSession(session);
+        if (gameID == null) {
+            throw new IllegalArgumentException("Session is not associated with any game.");
+        }
+
+        // Get the set of sessions for the given gameID
+        Set<Session> gameSessions = sessions.get(gameID);
+        if (gameSessions != null) {
+            // Send the message to all sessions in the game, except the provided session
+            for (Session s : gameSessions) {
+                if (s != session) {
+                    send(s, message);
+                }
             }
         }
+    }
+
+    // Example method to get the gameID for a session
+    private Integer getGameIDForSession(Session session) {
+        for (Map.Entry<Integer, Set<Session>> entry : sessions.entrySet()) {
+            if (entry.getValue().contains(session)) {
+                return entry.getKey();
+            }
+        }
+        return null;
     }
 
     public void error(Session session, String message) throws IOException {
@@ -42,9 +66,9 @@ public class ConnectionManagement {
     }
 
     public void send(Session session, String message) throws IOException {
-        if (session.isOpen()) {
-            session.getRemote().sendString(message);
-        }
+
+        session.getRemote().sendString(message);
+
     }
 
     public void clear() {

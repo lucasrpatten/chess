@@ -36,8 +36,8 @@ public class ServerMessage {
     }
 
     public ServerMessage(ChessGame game) {
-        this.game = game;
         this.serverMessageType = ServerMessageType.LOAD_GAME;
+        this.game = game;
     }
 
     public String getError() {

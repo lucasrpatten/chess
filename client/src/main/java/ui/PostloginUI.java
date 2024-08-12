@@ -22,6 +22,7 @@ public class PostloginUI extends GameRendererUI {
                 new Arguments(List.of("game_number")), "Observe a game with the given number.", this::observeGame));
         this.cmds.put("logout",
                 new FunctionPair<>(List.of("logout", "signout"), "Sign out of your account.", this::logout));
+        Data.getInstance().setColor(null);
     }
 
     private String createGame(String argString) {
@@ -77,6 +78,13 @@ public class PostloginUI extends GameRendererUI {
                 : ChessGame.TeamColor.BLACK;
         int gameNumber = Integer.parseInt(args[1]);
         Data.getInstance().getServerFacade().joinGame(color, gameNumber);
+        try {
+            Data.getInstance().getWebSocketClient().connect();
+        }
+        catch (Exception e) {
+            System.out.println("Failed to connect to the web socket server");
+        }
+
         // return "%sSuccessfully joined
         // game%s\n\n".formatted(EscapeSequences.SET_TEXT_COLOR_GREEN,
         // EscapeSequences.RESET_TEXT_COLOR);
@@ -98,6 +106,12 @@ public class PostloginUI extends GameRendererUI {
         int gameNumber = Integer.parseInt(args[0]);
 
         Data.getInstance().getServerFacade().observeGame(gameNumber);
+        try {
+            Data.getInstance().getWebSocketClient().connect();
+        }
+        catch (Exception e) {
+            System.out.println("Failed to connect to the web socket server");
+        }
 
         return "";
     }

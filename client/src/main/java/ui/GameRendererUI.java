@@ -179,11 +179,16 @@ public abstract class GameRendererUI extends UserInterface {
     private String formatBoard(int gameNumber, List<ChessPosition> highlightSquares) {
         ChessBoard board = getBoard(gameNumber);
         String[][] boardList = boardToList(board);
-        String whiteView = generateWhiteView(boardList, highlightSquares);
-        String blackView = generateBlackView(boardList, highlightSquares);
-
-        return "%s%s\n\n%s%s%s\n".formatted(blackView, EscapeSequences.RESET_BG_COLOR, whiteView,
-                EscapeSequences.RESET_BG_COLOR, EscapeSequences.RESET_TEXT_COLOR);
+        String view;
+        if (Data.getInstance().getColor() == ChessGame.TeamColor.BLACK) {
+            view = generateBlackView(boardList, List.of());
+        }
+        else {
+            view = generateWhiteView(boardList, List.of());
+        }
+        // String whiteView = generateWhiteView(boardList, List.of());
+        // String blackView = generateBlackView(boardList, List.of());
+        return "%s%s\n\n".formatted(view, EscapeSequences.RESET_BG_COLOR);
     }
 
     public String formatBoard(int gameNumber) {
@@ -194,9 +199,41 @@ public abstract class GameRendererUI extends UserInterface {
         Data.getInstance().getGame();
         ChessBoard board = Data.getInstance().getGame().getBoard();
         String[][] boardList = boardToList(board);
-        String whiteView = generateWhiteView(boardList, List.of());
-        String blackView = generateBlackView(boardList, List.of());
-        return "%s%s\n\n%s%s%s\n".formatted(blackView, EscapeSequences.RESET_BG_COLOR, whiteView,
-                EscapeSequences.RESET_BG_COLOR, EscapeSequences.RESET_TEXT_COLOR);
+        String view;
+        if (Data.getInstance().getColor() == ChessGame.TeamColor.BLACK) {
+            view = generateBlackView(boardList, List.of());
+        }
+        else {
+            view = generateWhiteView(boardList, List.of());
+        }
+        // String whiteView = generateWhiteView(boardList, List.of());
+        // String blackView = generateBlackView(boardList, List.of());
+        return "%s%s\n\n".formatted(view, EscapeSequences.RESET_BG_COLOR);
     }
+
+    // public String formatBoardWhiteOnly(int gameNumber) {
+    // Data.getInstance().getGame();
+    // ChessBoard board = getBoard(gameNumber);
+    // String[][] boardList = boardToList(board);
+    // String whiteView = generateWhiteView(boardList, List.of());
+    // return "%s%s\n".formatted(whiteView, EscapeSequences.RESET_BG_COLOR);
+    // }
+
+    // public String formatBoardBlackOnly(int gameNumber) {
+    // Data.getInstance().getGame();
+    // ChessBoard board = getBoard(gameNumber);
+    // String[][] boardList = boardToList(board);
+    // String blackView = generateBlackView(boardList, List.of());
+    // return "%s%s\n".formatted(blackView, EscapeSequences.RESET_BG_COLOR);
+    // }
+
+    // public String formatBoardBlackOnly() {
+    // Data.getInstance().getGame();
+    // ChessBoard board = Data.getInstance().getGame().getBoard();
+    // String[][] boardList = boardToList(board);
+    // String whiteView = generateWhiteView(boardList, List.of());
+    // String blackView = generateBlackView(boardList, List.of());
+    // return "%s%s\n".formatted(blackView, EscapeSequences.RESET_BG_COLOR);
+    // }
+
 }

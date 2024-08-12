@@ -6,7 +6,9 @@ import java.util.List;
 import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPosition;
+import chess.ChessGame.TeamColor;
 import chess.ChessPiece.PieceType;
+import model.GameData;
 import web.WebSocketClient;
 
 public class GameUI extends GameRendererUI {
@@ -30,7 +32,6 @@ public class GameUI extends GameRendererUI {
                 this.cmds.put("leave",
                                 new FunctionPair<>(List.of("leave", "l"), "Stop viewing the game.", this::leave));
                 System.out.println(formatBoard(Data.getInstance().getGameNumber()));
-
         }
 
         private String res() {

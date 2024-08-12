@@ -1,8 +1,13 @@
+import java.io.IOException;
+import java.net.URISyntaxException;
+
+import javax.websocket.DeploymentException;
+
 import ui.Data;
 import ui.UserREPL;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws URISyntaxException, DeploymentException, IOException {
         UserREPL repl = new UserREPL();
         String host = "localhost";
         int port = 8080;
@@ -12,12 +17,7 @@ public class Main {
         if (args.length > 1) {
             port = Integer.parseInt(args[1]);
         }
-        try {
-            Data.getInstance().initializeRun(host, port, repl);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+        Data.getInstance().initializeRun(host, port, repl);
 
         repl.run();
     }

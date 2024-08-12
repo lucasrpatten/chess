@@ -21,7 +21,7 @@ public class UserREPL implements WebSocketObserver {
         switch (message.getServerMessageType()) {
         case NOTIFICATION -> {
             Notification notif = new Gson().fromJson(msg, Notification.class);
-            System.out.println("%s%s%s".formatted(EscapeSequences.SET_TEXT_COLOR_GREEN, notif.getErrorMessage(),
+            System.out.println("%s%s%s".formatted(EscapeSequences.SET_TEXT_COLOR_GREEN, notif.getMessage(),
                     EscapeSequences.RESET_TEXT_COLOR));
             break;
 
@@ -74,13 +74,8 @@ public class UserREPL implements WebSocketObserver {
                 // Process the input
                 String[] tokens = line.toLowerCase().split(" ");
                 res = tokens[0].toLowerCase();
-                try {
-                    String result = Data.getInstance().getUi().runCmd(line);
-                    System.out.println(result);
-                }
-                catch (Exception e) {
-                    System.out.println(e.getMessage());
-                }
+                String result = Data.getInstance().getUi().runCmd(line);
+                System.out.println(result);
 
                 System.out.print(EscapeSequences.RESET_TEXT_COLOR);
             }

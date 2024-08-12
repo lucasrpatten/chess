@@ -1,7 +1,8 @@
 package ui;
 
 /**
- * This class contains constants and functions relating to ANSI Escape Sequences that are useful in the Client display
+ * This class contains constants and functions relating to ANSI Escape Sequences
+ * that are useful in the Client display
  */
 public class EscapeSequences {
 
@@ -47,19 +48,21 @@ public class EscapeSequences {
     public static final String SET_BG_COLOR_WHITE = SET_BG_COLOR + "15m";
     public static final String RESET_BG_COLOR = UNICODE_ESCAPE + "[49m";
 
-    public static final String WHITE_KING = " ♔ ";
-    public static final String WHITE_QUEEN = " ♕ ";
-    public static final String WHITE_BISHOP = " ♗ ";
-    public static final String WHITE_KNIGHT = " ♘ ";
-    public static final String WHITE_ROOK = " ♖ ";
-    public static final String WHITE_PAWN = " ♙ ";
-    public static final String BLACK_KING = " ♚ ";
-    public static final String BLACK_QUEEN = " ♛ ";
-    public static final String BLACK_BISHOP = " ♝ ";
-    public static final String BLACK_KNIGHT = " ♞ ";
-    public static final String BLACK_ROOK = " ♜ ";
-    public static final String BLACK_PAWN = " ♟ ";
+    public static final String WHITE_KING = " k ";
+    public static final String WHITE_QUEEN = " q ";
+    public static final String WHITE_BISHOP = " b ";
+    public static final String WHITE_KNIGHT = " n ";
+    public static final String WHITE_ROOK = " r ";
+    public static final String WHITE_PAWN = " p ";
+    public static final String BLACK_KING = " K ";
+    public static final String BLACK_QUEEN = " Q ";
+    public static final String BLACK_BISHOP = " B ";
+    public static final String BLACK_KNIGHT = " N ";
+    public static final String BLACK_ROOK = " R ";
+    public static final String BLACK_PAWN = " P ";
     public static final String EMPTY = " \u2003 ";
 
-    public static String moveCursorToLocation(int x, int y) { return UNICODE_ESCAPE + "[" + y + ";" + x + "H"; }
+    public static String moveCursorToLocation(int x, int y) {
+        return UNICODE_ESCAPE + "[" + y + ";" + x + "H";
+    }
 }

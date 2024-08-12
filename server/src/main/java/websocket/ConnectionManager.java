@@ -36,9 +36,9 @@ public class ConnectionManager {
             error(session, "Session is not associated with any game.");
             return;
         }
-
+        System.out.println(gameID);
         for (Session s : sessions.keySet()) {
-            if (sessions.get(s) == gameID && s != session) {
+            if (getGameIDForSession(s) == gameID && s != session) {
                 send(s, message);
             }
         }

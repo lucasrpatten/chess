@@ -1,7 +1,6 @@
 package websocket;
 
 import java.io.IOException;
-import java.util.Objects;
 
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
@@ -20,7 +19,6 @@ import model.AuthData;
 import model.GameData;
 import websocket.commands.MakeMove;
 import websocket.commands.UserGameCommand;
-import websocket.messages.ErrorMsg;
 import websocket.messages.LoadGame;
 import websocket.messages.Notification;
 
@@ -113,9 +111,6 @@ public class WebSocketHandler {
 
         manager.add(session, gameData.gameID());
 
-        LoadGame loadGame = new LoadGame(gameData.game());
-        manager.send(session, new Gson().toJson(loadGame));
-
         TeamColor joinColor = getTeamColor(username, gameData);
         if (joinColor != null) {
             notification = new Notification(
@@ -126,6 +121,10 @@ public class WebSocketHandler {
         }
 
         manager.broadcast(session, new Gson().toJson(notification));
+
+        LoadGame loadGame = new LoadGame(gameData.game());
+        manager.send(session, new Gson().toJson(loadGame));
+
     }
 
     private void makeMove(Session session, MakeMove cmd, DataPair dataPair) throws IOException {

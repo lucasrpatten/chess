@@ -61,6 +61,7 @@ public class ConnectionManagement {
     }
 
     public void error(Session session, String message) throws IOException {
+        ServerMessage err = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
         ServerMessage err = new ServerMessage(ServerMessage.ServerMessageType.ERROR, message);
         send(session, new Gson().toJson(err));
     }

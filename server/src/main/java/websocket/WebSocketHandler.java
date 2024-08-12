@@ -144,9 +144,8 @@ public class WebSocketHandler {
 
         TeamColor opponent = (userColor == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE);
 
-        if (!gameData.game().getTeamTurn().equals(opponent)) {
+        if (gameData.game().getTeamTurn().equals(opponent)) {
             sendError(session, "Error: It is not your turn.");
-            broadcastGame(session, gameData);
             return;
         }
 
@@ -184,9 +183,8 @@ public class WebSocketHandler {
 
             dataAccess.getGameDAO().updateGame(gameData);
 
-            LoadGame loadGame = new LoadGame(gameData.game());
-            manager.broadcast(session, new Gson().toJson(loadGame));
-            manager.send(session, new Gson().toJson(loadGame));
+            broadcastGame(session, gameData);
+            sendGame(session, gameData);
         }
         catch (InvalidMoveException e) {
             sendError(session, "That is not a valid move.");
@@ -201,6 +199,11 @@ public class WebSocketHandler {
     private void broadcastGame(Session session, GameData gameData) throws IOException {
         LoadGame loadGame = new LoadGame(gameData.game());
         manager.broadcast(session, new Gson().toJson(loadGame));
+    }
+
+    private void sendGame(Session session, GameData gameData) throws IOException {
+        LoadGame loadGame = new LoadGame(gameData.game());
+        manager.send(session, new Gson().toJson(loadGame));
     }
 
     private TeamColor getTeamColor(String username, GameData gameData) {

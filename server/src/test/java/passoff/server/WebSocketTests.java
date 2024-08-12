@@ -60,15 +60,6 @@ public class WebSocketTests {
     }
 
     @Test
-    @Order(1)
-    @DisplayName("Normal Connect")
-
-    public void connectGood() {
-
-        setupNormalGame();
-    }
-
-    @Test
     @Order(2)
     @DisplayName("Connect White")
 

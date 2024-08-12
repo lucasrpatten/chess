@@ -79,7 +79,7 @@ public class GameService {
             }
             if ((color == TeamColor.BLACK && game.blackUsername() != null)
                     || (color == TeamColor.WHITE && game.whiteUsername() != null)) {
-                throw new AlreadyTakenException("Error: Color is already taken");
+                throw new AlreadyTakenException("Error: Color is already taken %s".formatted(game.toString()));
             }
 
             if (color == TeamColor.BLACK) {

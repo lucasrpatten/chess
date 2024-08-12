@@ -54,10 +54,6 @@ public class WebSocketClient implements MessageHandler.Whole<String> {
         sendText(new Gson().toJson(new UserGameCommand(CommandType.CONNECT, authToken, gameID)));
     }
 
-    public void move(ChessMove move) {
-        
-    }
-
     public void move(ChessMove move) throws IOException {
         session.getBasicRemote().sendText(new Gson()
                 .toJson(new UserGameCommand(Data.getInstance().getAuthToken(), Data.getInstance().getGameID(), move)));

@@ -70,7 +70,9 @@ public class WebSocketHandler {
         case RESIGN:
             resign(session, cmd, dataPair);
             break;
-
+        case LEAVE:
+            leave(session, cmd, dataPair);
+            break;
         default:
             break;
         }
@@ -122,6 +124,7 @@ public class WebSocketHandler {
         else {
             notification = new Notification("%s is now observing the game.".formatted(username));
         }
+
         manager.broadcast(session, new Gson().toJson(notification));
     }
 
@@ -222,6 +225,30 @@ public class WebSocketHandler {
                 "%s has resigned, %s is the winner!".formatted(username, opponentUsername));
         manager.broadcast(session, new Gson().toJson(notif));
         manager.send(session, new Gson().toJson(notif));
+    }
+
+    private void leave(Session session, UserGameCommand cmd, DataPair dataPair) throws IOException {
+        String username = dataPair.getAuthData().username();
+        TeamColor userColor = getTeamColor(username, dataPair.getGameData());
+        GameData gameData = dataPair.getGameData();
+        Notification notification = new Notification("%s has left the game.".formatted(username));
+        manager.broadcast(session, new Gson().toJson(notification));
+
+        if (userColor.equals(TeamColor.WHITE)) {
+            gameData = gameData.setWhiteUsername(null);
+        }
+        else if (userColor.equals(TeamColor.BLACK)) {
+            gameData = gameData.setBlackUsername(null);
+        }
+        try {
+            dataAccess.getGameDAO().updateGame(gameData);
+        }
+        catch (DataAccessException e) {
+            sendError(session, "Error: Invalid Request");
+            return;
+        }
+        manager.remove(session);
+        session.close();
 
     }
 

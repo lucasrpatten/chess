@@ -11,6 +11,7 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import com.google.gson.Gson;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import chess.InvalidMoveException;
 import chess.ChessGame.TeamColor;
 import dataaccess.DataAccess;
@@ -127,6 +128,7 @@ public class WebSocketHandler {
         String username = dataPair.getAuthData().username();
         GameData gameData = dataPair.getGameData();
         TeamColor userColor = getTeamColor(username, gameData);
+        ChessMove move = cmd.getMove();
         if (userColor == null) {
             sendError(session, "Error: You are not playing in this game.");
             return;
@@ -137,6 +139,11 @@ public class WebSocketHandler {
         }
         if (!gameData.game().getTeamTurn().equals(userColor)) {
             sendError(session, "Error: It is not your turn.");
+            return;
+        }
+
+        if (!gameData.game().validMoves(move.getStartPosition()).contains(move)) {
+            sendError(session, "Error: That is not a valid move.");
             return;
         }
 

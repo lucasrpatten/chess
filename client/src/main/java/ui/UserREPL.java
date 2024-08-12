@@ -2,7 +2,49 @@ package ui;
 
 import java.util.Scanner;
 
-public class UserREPL {
+import javax.websocket.OnMessage;
+
+import com.google.gson.Gson;
+
+import web.WebSocketObserver;
+import websocket.messages.ErrorMsg;
+import websocket.messages.LoadGame;
+import websocket.messages.Notification;
+import websocket.messages.ServerMessage;
+
+public class UserREPL implements WebSocketObserver {
+
+    @Override
+    @OnMessage
+    public void receiveMessage(String msg) {
+        ServerMessage message = new Gson().fromJson(msg, ServerMessage.class);
+        System.out.println("Received message: " + message);
+        switch (message.getServerMessageType()) {
+        case NOTIFICATION -> {
+            Notification notif = new Gson().fromJson(msg, Notification.class);
+            System.out.println("%s%s%s".formatted(EscapeSequences.SET_TEXT_COLOR_GREEN, notif.getMessage(),
+                    EscapeSequences.RESET_TEXT_COLOR));
+            break;
+
+        }
+        case ERROR -> {
+            ErrorMsg error = new Gson().fromJson(msg, ErrorMsg.class);
+            System.out.println("%s%s%s%s%s".formatted(EscapeSequences.SET_TEXT_COLOR_RED,
+                    EscapeSequences.SET_TEXT_BLINKING, error.getErrorMessage(), EscapeSequences.RESET_TEXT_COLOR,
+                    EscapeSequences.RESET_TEXT_BLINKING));
+            break;
+        }
+        case LOAD_GAME -> {
+            LoadGame gameMsg = new Gson().fromJson(msg, LoadGame.class);
+            Data.getInstance().setGame(gameMsg.getGame());
+            System.out.println(((GameUI) Data.getInstance().getUi()).formatBoard(Data.getInstance().getGameNumber()));
+            break;
+        }
+        default -> System.out.println("Unknown message type: " + message.getServerMessageType());
+        }
+
+        System.out.println(Data.getInstance().getPrompt());
+    }
 
     public void run() {
         // Print the welcome message

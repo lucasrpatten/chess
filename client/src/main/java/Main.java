@@ -12,8 +12,12 @@ public class Main {
         if (args.length > 1) {
             port = Integer.parseInt(args[1]);
         }
-
-        Data.getInstance().initializeRun(host, port, repl);
+        try {
+            Data.getInstance().initializeRun(host, port, repl);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
 
         repl.run();
     }

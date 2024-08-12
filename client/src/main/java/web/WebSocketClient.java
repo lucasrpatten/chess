@@ -18,17 +18,16 @@ import ui.Data;
 import websocket.commands.MakeMove;
 import websocket.commands.UserGameCommand;
 import websocket.commands.UserGameCommand.CommandType;
-import websocket.messages.ServerMessage;
 
 public class WebSocketClient implements MessageHandler.Whole<String> {
     private final WebSocketObserver observer;
     private final Session session;
 
-    public WebSocketClient(WebSocketObserver observer, String host, int port)
+    public WebSocketClient(WebSocketObserver ui, String host, int port)
             throws URISyntaxException, DeploymentException, IOException {
-        this.observer = observer;
+        this.observer = ui;
 
-        URI uri = new URI("ws://" + host + ":" + port + "/connect");
+        URI uri = new URI("ws://" + host + ":" + port + "/ws");
 
         session = ContainerProvider.getWebSocketContainer().connectToServer(new Endpoint() {
             @Override
@@ -41,8 +40,7 @@ public class WebSocketClient implements MessageHandler.Whole<String> {
 
     @Override
     public void onMessage(String message) {
-        ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
-        observer.receiveMessage(serverMessage);
+        observer.receiveMessage(message);
     }
 
     private void sendText(String message) throws IOException {

@@ -189,4 +189,14 @@ public abstract class GameRendererUI extends UserInterface {
     public String formatBoard(int gameNumber) {
         return formatBoard(gameNumber, List.of());
     }
+
+    public String formatBoard() {
+        Data.getInstance().getGame();
+        ChessBoard board = Data.getInstance().getGame().getBoard();
+        String[][] boardList = boardToList(board);
+        String whiteView = generateWhiteView(boardList, List.of());
+        String blackView = generateBlackView(boardList, List.of());
+        return "%s%s\n\n%s%s%s\n".formatted(blackView, EscapeSequences.RESET_BG_COLOR, whiteView,
+                EscapeSequences.RESET_BG_COLOR, EscapeSequences.RESET_TEXT_COLOR);
+    }
 }

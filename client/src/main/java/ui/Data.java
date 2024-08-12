@@ -1,11 +1,17 @@
 package ui;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.websocket.DeploymentException;
 
 import chess.ChessGame;
 import model.GameData;
 import web.ServerFacade;
+import web.WebSocketClient;
+import web.WebSocketObserver;
 
 public class Data {
     public enum State {
@@ -21,6 +27,8 @@ public class Data {
     public static void setInstance(Data instance) {
         Data.instance = instance;
     }
+
+    private WebSocketClient webSocketClient;
 
     private ServerFacade serverFacade;
 
@@ -68,6 +76,8 @@ public class Data {
 
     private List<Integer> gameIDs = new ArrayList<>();
 
+    private ChessGame game;
+
     private Data() {
     }
 
@@ -91,12 +101,32 @@ public class Data {
         return username;
     }
 
+    public WebSocketClient getWebSocketClient() {
+        return webSocketClient;
+    }
+
+    public void setGame(ChessGame game) {
+        this.game = game;
+    }
+
+    public ChessGame getGame() {
+        return game;
+    }
+
     public void setUsername(String username) {
         this.username = username;
     }
 
-    public void initializeRun(String url, int port, UserREPL ui) {
-        serverFacade = new ServerFacade("http://%s:%s".formatted(url, port));
+    public void initializeRun(String url, int port, WebSocketObserver ui)
+            throws URISyntaxException, DeploymentException, IOException {
+        this.serverFacade = new ServerFacade("http://%s:%s".formatted(url, port));
+        try {
+            this.webSocketClient = new WebSocketClient(ui, url, port);
+        }
+        catch (Exception e) {
+            System.out.println("Failed to connect to the web socket server");
+            System.exit(1);
+        }
     }
 
     public State getState() {
@@ -121,7 +151,7 @@ public class Data {
         return switch (this.state) {
         case LOGGED_OUT -> "[LOGGED OUT] >>> ";
         case LOGGED_IN -> "[%s] >>> ".formatted(username);
-        case IN_GAME -> "[%s vs %s] >>> ".formatted(username, username);
+        case IN_GAME -> "[In Game] >>> ";
         };
     }
 

@@ -19,6 +19,8 @@ import model.AuthData;
 import model.GameData;
 import server.Server;
 import websocket.commands.UserGameCommand;
+import websocket.messages.LoadGame;
+import websocket.messages.Notification;
 import websocket.messages.ServerMessage;
 import websocket.messages.ServerMessage.ServerMessageType;
 
@@ -48,7 +50,7 @@ public class WebSocketHandler {
         manager.remove(session);
     }
 
-    private DataPair getData(Session session, UserGameCommand cmd) {
+    private DataPair getData(Session session, UserGameCommand cmd) throws IOException {
         AuthData authData;
         GameData gameData;
         try {
@@ -61,7 +63,7 @@ public class WebSocketHandler {
 
             gameData = dataAccess.getGameDAO().getGame(cmd.getGameID());
             if (gameData == null) {
-                manager.error(session, "Error: Invalid game. Unauthorized request");
+                manager.error(session, "Error: Game does not exist.");
                 return null;
             }
         }
@@ -69,42 +71,46 @@ public class WebSocketHandler {
             manager.error(session, "Error: Invalid Request");
             return null;
         }
-        return new DataPair(session, gameData);
-    }
-
-    private GameData getGame(Session session, UserGameCommand cmd) {
-        GameData gameData;
-        try {
-            gameData = dataAccess.getGameDAO().getGame(cmd.getGameID());
-
-            if (gameData == null) {
-                manager.error(session, "Error: Invalid game. Unauthorized request");
-                return null;
-            }
-        }
-        catch (DataAccessException e) {
-            manager.error(session, "Error: Invalid Request");
-            return null;
-        }
-        return gameData;
+        return new DataPair(authData, gameData);
     }
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {
-        if (message.contains("\"commandType\":\"CONNECT\"")) {
-            UserGameCommand cmd = new Gson().fromJson(message, UserGameCommand.class);
-            AuthData authData = getAuth(session, cmd);
-            if (authData == null) {
-                return;
-            }
-            GameData gameData = getGame(session, cmd);
-            if (gameData == null) {
-                return;
-            }
+        UserGameCommand cmd = new Gson().fromJson(message, UserGameCommand.class);
+        DataPair dataPair = getData(session, cmd);
+        if (dataPair == null) {
+            return;
+        }
+        switch (cmd.getCommandType()) {
+        case CONNECT:
+            join(session, cmd, dataPair);
+            break;
+
+        default:
+            break;
         }
     }
 
-    private void join(Session session, UserGameCommand cmd)
+    private void join(Session session, UserGameCommand cmd, DataPair dataPair) throws IOException {
+        Notification notification;
+        String username = dataPair.getAuthData().username();
+        GameData gameData = dataPair.getGameData();
+
+        manager.add(session, gameData.gameID());
+
+        LoadGame loadGame = new LoadGame(gameData.game());
+        manager.send(session, new Gson().toJson(loadGame));
+
+        if (gameData.whiteUsername() == username || gameData.blackUsername() == username) {
+            TeamColor joinColor = gameData.whiteUsername() == username ? TeamColor.WHITE : TeamColor.BLACK;
+            notification = new Notification(
+                    "%s has joined the game as %s.".formatted(username, joinColor.toString().toLowerCase()));
+        }
+        else {
+            notification = new Notification("%s is now observing the game.".formatted(username));
+        }
+        manager.broadcast(session, new Gson().toJson(notification));
+    }
 
     // @OnWebSocketMessage
     // public void onWebSocketMessage(Session session, String message) throws

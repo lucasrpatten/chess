@@ -16,6 +16,7 @@ import com.google.gson.Gson;
 import chess.ChessMove;
 import ui.Data;
 import websocket.commands.UserGameCommand;
+import websocket.commands.UserGameCommand.CommandType;
 import websocket.messages.ServerMessage;
 
 public class WebSocketClient implements MessageHandler.Whole<String> {
@@ -43,15 +44,18 @@ public class WebSocketClient implements MessageHandler.Whole<String> {
         observer.receiveMessage(serverMessage);
     }
 
-    public void joinGame() throws IOException {
-        session.getBasicRemote().sendText(new Gson().toJson(new UserGameCommand(Data.getInstance().getAuthToken(),
-                Data.getInstance().getGameID(), Data.getInstance().getColor())));
+    private void sendText(String message) throws IOException {
+        session.getBasicRemote().sendText(message);
     }
 
-    public void observeGame() throws IOException {
-        session.getBasicRemote()
-                .sendText(new Gson().toJson(new UserGameCommand(UserGameCommand.CommandType.JOIN_OBSERVER,
-                        Data.getInstance().getAuthToken(), Data.getInstance().getGameID())));
+    public void connect() throws IOException {
+        String authToken = Data.getInstance().getAuthToken();
+        int gameID = Data.getInstance().getGameID();
+        sendText(new Gson().toJson(new UserGameCommand(CommandType.CONNECT, authToken, gameID)));
+    }
+
+    public void move(ChessMove move) {
+
     }
 
     public void move(ChessMove move) throws IOException {
@@ -69,4 +73,8 @@ public class WebSocketClient implements MessageHandler.Whole<String> {
                 Data.getInstance().getAuthToken(), Data.getInstance().getGameID())));
     }
 
+    private void sendCommand(CommandType commandType) throws IOException {
+        session.getBasicRemote().sendText(new Gson().toJson(
+                new UserGameCommand(commandType, Data.getInstance().getAuthToken(), Data.getInstance().getGameID())));
+    }
 }

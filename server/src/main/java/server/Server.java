@@ -17,6 +17,7 @@ import service.BadRequestException;
 import service.ServerException;
 import service.UnauthorizedException;
 import spark.*;
+import websocket.WebSocketHandler;
 
 public class Server {
 
@@ -26,6 +27,10 @@ public class Server {
         Spark.staticFiles.location("web");
 
         DataAccess data = new SqlDataAccess();
+        WebSocketHandler ws = WebSocketHandler.getInstance();
+        ws.setDataAccess(data);
+
+        Spark.webSocket("/ws", ws);
 
         Spark.delete("/db", new ClearHandler(data));
         Spark.post("/user", new RegisterHandler(data));

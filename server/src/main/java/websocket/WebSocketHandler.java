@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
+import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 
 import com.google.gson.Gson;
 
@@ -19,6 +20,7 @@ import websocket.messages.ServerMessage.ServerMessageType;
 
 import org.eclipse.jetty.websocket.api.Session;
 
+@WebSocket
 public class WebSocketHandler {
     private DataAccess dataAccess;
     private static final WebSocketHandler instance = new WebSocketHandler();

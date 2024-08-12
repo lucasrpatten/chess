@@ -18,7 +18,9 @@ import dataaccess.DataAccessException;
 import model.AuthData;
 import model.GameData;
 import server.Server;
+import websocket.commands.MakeMove;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMsg;
 import websocket.messages.LoadGame;
 import websocket.messages.Notification;
 import websocket.messages.ServerMessage;
@@ -57,21 +59,25 @@ public class WebSocketHandler {
             authData = dataAccess.getAuthDAO().getAuth(cmd.getAuthToken());
 
             if (authData == null) {
-                manager.error(session, "Error: Invalid token. Unauthorized request");
+                sendError(session, "Error: Invalid token. Unauthorized request");
                 return null;
             }
 
             gameData = dataAccess.getGameDAO().getGame(cmd.getGameID());
             if (gameData == null) {
-                manager.error(session, "Error: Game does not exist.");
+                sendError(session, "Error: Game does not exist.");
                 return null;
             }
         }
         catch (DataAccessException e) {
-            manager.error(session, "Error: Invalid Request");
+            sendError(session, "Error: Invalid Request");
             return null;
         }
         return new DataPair(authData, gameData);
+    }
+
+    private void sendError(Session session, String message) throws IOException {
+        manager.error(session, new Gson().toJson(new ErrorMsg(message)));
     }
 
     @OnWebSocketMessage
@@ -83,7 +89,12 @@ public class WebSocketHandler {
         }
         switch (cmd.getCommandType()) {
         case CONNECT:
-            join(session, cmd, dataPair);
+            connect(session, cmd, dataPair);
+            break;
+
+        case MAKE_MOVE:
+            MakeMove moveCmd = new Gson().fromJson(message, MakeMove.class);
+            makeMove(session, moveCmd, dataPair);
             break;
 
         default:
@@ -91,7 +102,7 @@ public class WebSocketHandler {
         }
     }
 
-    private void join(Session session, UserGameCommand cmd, DataPair dataPair) throws IOException {
+    private void connect(Session session, UserGameCommand cmd, DataPair dataPair) throws IOException {
         Notification notification;
         String username = dataPair.getAuthData().username();
         GameData gameData = dataPair.getGameData();
@@ -101,8 +112,8 @@ public class WebSocketHandler {
         LoadGame loadGame = new LoadGame(gameData.game());
         manager.send(session, new Gson().toJson(loadGame));
 
-        if (gameData.whiteUsername() == username || gameData.blackUsername() == username) {
-            TeamColor joinColor = gameData.whiteUsername() == username ? TeamColor.WHITE : TeamColor.BLACK;
+        TeamColor joinColor = getTeamColor(username, gameData);
+        if (joinColor != null) {
             notification = new Notification(
                     "%s has joined the game as %s.".formatted(username, joinColor.toString().toLowerCase()));
         }
@@ -112,6 +123,66 @@ public class WebSocketHandler {
         manager.broadcast(session, new Gson().toJson(notification));
     }
 
+    private void makeMove(Session session, MakeMove cmd, DataPair dataPair) throws IOException {
+        String username = dataPair.getAuthData().username();
+        GameData gameData = dataPair.getGameData();
+        TeamColor userColor = getTeamColor(username, gameData);
+        if (userColor == null) {
+            sendError(session, "Error: You are not playing in this game.");
+            return;
+        }
+        if (gameData.game().getGameOver()) {
+            sendError(session, "Error: Game is over. No more moves can be made.");
+            return;
+        }
+        if (!gameData.game().getTeamTurn().equals(userColor)) {
+            sendError(session, "Error: It is not your turn.");
+            return;
+        }
+
+        try {
+            Notification notif;
+            TeamColor opponent = userColor == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
+
+            if (gameData.game().isInCheckmate(opponent)) {
+                notif = new Notification("Checkmate! %s is the winner.".formatted(opponent.toString().toLowerCase()));
+                gameData.game().setGameOver(true);
+            }
+            else if (gameData.game().isInStalemate(opponent)) {
+                notif = new Notification("Stalemate caused by %s. Game ends with a tie!".formatted(username));
+                gameData.game().setGameOver(true);
+            }
+            else if (gameData.game().isInCheck(opponent)) {
+                notif = new Notification("%s is in check.".formatted(opponent.toString().toLowerCase()));
+            }
+            else {
+                notif = new Notification("%s has made a move.".formatted(username));
+            }
+
+            manager.broadcast(session, new Gson().toJson(notif));
+
+            dataAccess.getGameDAO().updateGame(gameData);
+
+            LoadGame loadGame = new LoadGame(gameData.game());
+            manager.broadcast(session, new Gson().toJson(loadGame));
+            manager.send(session, new Gson().toJson(loadGame));
+        }
+        catch (DataAccessException e) {
+            sendError(session, "Error: Invalid Request");
+            return;
+        }
+    }
+
+    private TeamColor getTeamColor(String username, GameData gameData) {
+        if (username.equals(gameData.whiteUsername())) {
+            return TeamColor.WHITE;
+        }
+        if (username.equals(gameData.blackUsername())) {
+            return TeamColor.BLACK;
+        }
+        return null;
+
+    }
     // @OnWebSocketMessage
     // public void onWebSocketMessage(Session session, String message) throws
 

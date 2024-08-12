@@ -55,7 +55,7 @@ public class WebSocketClient implements MessageHandler.Whole<String> {
     }
 
     public void move(ChessMove move) {
-
+        
     }
 
     public void move(ChessMove move) throws IOException {

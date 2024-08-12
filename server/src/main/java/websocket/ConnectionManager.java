@@ -7,7 +7,7 @@ import org.eclipse.jetty.websocket.api.Session;
 
 import com.google.gson.Gson;
 
-import websocket.messages.Error;
+import websocket.messages.ErrorMsg;
 import websocket.messages.ServerMessage;
 
 public class ConnectionManager {
@@ -46,7 +46,7 @@ public class ConnectionManager {
     }
 
     public void error(Session session, String message) throws IOException {
-        ServerMessage err = new Error(message);
+        ServerMessage err = new ErrorMsg(message);
         send(session, new Gson().toJson(err));
     }
 

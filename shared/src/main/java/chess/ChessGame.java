@@ -28,6 +28,7 @@ public class ChessGame {
     private boolean canBlackQueensideCastle;
     private boolean canWhiteQueensideCastle;
     private ChessPosition enPassantLocation;
+    private boolean gameOver;
 
     public ChessGame() {
         board = new ChessBoard();
@@ -36,6 +37,7 @@ public class ChessGame {
         canWhiteKingsideCastle = true;
         canBlackQueensideCastle = true;
         canWhiteQueensideCastle = true;
+        gameOver = false;
         board.resetBoard();
     }
 
@@ -287,7 +289,11 @@ public class ChessGame {
         if (!isInCheck(teamColor)) {
             return false;
         }
-        return !hasValidMoves(teamColor);
+        if (hasValidMoves(teamColor)) {
+            return false;
+        }
+        gameOver = true;
+        return true;
     }
 
     /**
@@ -301,7 +307,11 @@ public class ChessGame {
         if (isInCheck(teamColor)) {
             return false;
         }
-        return !hasValidMoves(teamColor);
+        if (hasValidMoves(teamColor)) {
+            return false;
+        }
+        gameOver = true;
+        return true;
     }
 
     /**
@@ -324,6 +334,14 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return board;
+    }
+
+    public boolean getGameOver() {
+        return gameOver;
+    }
+
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
     }
 
     @Override

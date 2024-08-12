@@ -3,6 +3,7 @@ package ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import chess.ChessGame;
 import model.GameData;
 import web.ServerFacade;
 
@@ -23,6 +24,16 @@ public class Data {
 
     private ServerFacade serverFacade;
 
+    private ChessGame.TeamColor color;
+
+    public void setColor(ChessGame.TeamColor color) {
+        this.color = color;
+    }
+
+    public ChessGame.TeamColor getColor() {
+        return color;
+    }
+
     private String authToken;
 
     private String username;
@@ -33,8 +44,20 @@ public class Data {
 
     private int gameNumber;
 
+    private int gameID;
+
     public void setGameNumber(int gameNumber) {
         this.gameNumber = gameNumber;
+        this.gameID = Data.getInstance().getGameList().get(gameNumber - 1).gameID();
+    }
+
+    public int getGameID() {
+        return gameID;
+    }
+
+    public void resetGameNumber() {
+        gameNumber = 0;
+        gameID = 0;
     }
 
     public int getGameNumber() {

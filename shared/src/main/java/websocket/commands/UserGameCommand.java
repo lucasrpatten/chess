@@ -8,11 +8,11 @@ import java.util.Objects;
  */
 public class UserGameCommand {
 
-    private final CommandType commandType;
+    protected final CommandType commandType;
 
-    private final String authToken;
+    protected final String authToken;
 
-    private final Integer gameID;
+    protected final Integer gameID;
 
     public UserGameCommand(CommandType commandType, String authToken, Integer gameID) {
         this.commandType = commandType;

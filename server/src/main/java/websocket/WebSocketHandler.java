@@ -28,7 +28,7 @@ import org.eclipse.jetty.websocket.api.Session;
 public class WebSocketHandler {
     private DataAccess dataAccess;
     private static final WebSocketHandler instance = new WebSocketHandler();
-    private final ConnectionManagement manager = new ConnectionManagement();
+    private final ConnectionManager manager = new ConnectionManager();
 
     @OnWebSocketConnect
     public void onConnect(Session session) {

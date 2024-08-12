@@ -37,13 +37,19 @@ public class UserREPL implements WebSocketObserver {
         case LOAD_GAME -> {
             LoadGame gameMsg = new Gson().fromJson(msg, LoadGame.class);
             Data.getInstance().setGame(gameMsg.getGame());
-            System.out.println(((GameUI) Data.getInstance().getUi()).formatBoard(Data.getInstance().getGameNumber()));
+            System.out.println(((GameUI) Data.getInstance().getUi()).formatBoard());
             break;
         }
         default -> System.out.println("Unknown message type: " + message.getServerMessageType());
         }
 
-        System.out.println(Data.getInstance().getPrompt());
+        printPrompt();
+    }
+
+    private void printPrompt() {
+        System.out.print("\r" + EscapeSequences.SET_TEXT_COLOR_YELLOW + Data.getInstance().getPrompt()
+                + EscapeSequences.RESET_TEXT_COLOR);
+        System.out.flush();
     }
 
     public void run() {

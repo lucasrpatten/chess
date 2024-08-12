@@ -30,16 +30,6 @@ public class WebSocketHandler {
     private static final WebSocketHandler instance = new WebSocketHandler();
     private final ConnectionManager manager = new ConnectionManager();
 
-    @OnWebSocketConnect
-    public void onConnect(Session session) {
-        manager.add(0, session);
-    }
-
-    @OnWebSocketClose
-    public void onClose(Session session, int statusCode, String reason) {
-        manager.remove(session);
-    }
-
     public void setDataAccess(DataAccess dataAccess) {
         this.dataAccess = dataAccess;
     }
@@ -48,245 +38,328 @@ public class WebSocketHandler {
         return instance;
     }
 
-    @OnWebSocketMessage
-    public void onWebSocketMessage(Session session, String message) throws IOException {
-        // log.log("Received message from client: " + session.getRemoteSocketAddress() +
-        // ": " + message);
+    @OnWebSocketConnect
+    public void onConnect(Session session) {
+        manager.add(session, 0);
+    }
 
-        UserGameCommand cmd = new Gson().fromJson(message, UserGameCommand.class);
+    @OnWebSocketClose
+    public void onClose(Session session, int statusCode, String reason) {
+        manager.remove(session);
+    }
 
+    private DataPair getData(Session session, UserGameCommand cmd) {
         AuthData authData;
         GameData gameData;
         try {
-            authData = dataAccess.getAuthDAO().getAuth(cmd.getAuthString());
+            authData = dataAccess.getAuthDAO().getAuth(cmd.getAuthToken());
 
             if (authData == null) {
                 manager.error(session, "Error: Invalid token. Unauthorized request");
-                return;
+                return null;
             }
 
             gameData = dataAccess.getGameDAO().getGame(cmd.getGameID());
-
             if (gameData == null) {
-                manager.error(session, "Error: Game does not exist");
-                return;
+                manager.error(session, "Error: Invalid game. Unauthorized request");
+                return null;
             }
         }
         catch (DataAccessException e) {
-            manager.error(session, "Unknown error: " + e.getMessage());
-            return;
+            manager.error(session, "Error: Invalid Request");
+            return null;
         }
+        return new DataPair(session, gameData);
+    }
 
-        switch (cmd.getCommandType()) {
-        case CONNECT -> join(session, cmd, authData.username(), gameData);
-        case MAKE_MOVE -> makeMove(session, cmd, authData.username(), gameData);
-        case LEAVE -> leaveGame(session, authData.username(), gameData);
-        case RESIGN -> resign(session, authData.username(), gameData);
+    private GameData getGame(Session session, UserGameCommand cmd) {
+        GameData gameData;
+        try {
+            gameData = dataAccess.getGameDAO().getGame(cmd.getGameID());
+
+            if (gameData == null) {
+                manager.error(session, "Error: Invalid game. Unauthorized request");
+                return null;
+            }
+        }
+        catch (DataAccessException e) {
+            manager.error(session, "Error: Invalid Request");
+            return null;
+        }
+        return gameData;
+    }
+
+    @OnWebSocketMessage
+    public void onMessage(Session session, String message) throws IOException {
+        if (message.contains("\"commandType\":\"CONNECT\"")) {
+            UserGameCommand cmd = new Gson().fromJson(message, UserGameCommand.class);
+            AuthData authData = getAuth(session, cmd);
+            if (authData == null) {
+                return;
+            }
+            GameData gameData = getGame(session, cmd);
+            if (gameData == null) {
+                return;
+            }
         }
     }
 
-    private void leaveGame(Session session, String username, GameData gameData) throws IOException {
-        manager.remove(gameData.gameID(), session);
-        ServerMessage msg = new ServerMessage(ServerMessageType.NOTIFICATION,
-                "%s %s".formatted(username,
-                        ((Objects.equals(username, gameData.blackUsername())
-                                || Objects.equals(username, gameData.whiteUsername())) ? " has left the game"
-                                        : " is no longer observing the game")));
+    private void join(Session session, UserGameCommand cmd)
 
-        manager.broadcast(gameData.gameID(), new Gson().toJson(msg), null);
-    }
+    // @OnWebSocketMessage
+    // public void onWebSocketMessage(Session session, String message) throws
 
-    private void join(Session session, UserGameCommand cmd, String username, GameData gameData) throws IOException {
-        manager.add(gameData.gameID(), session);
-        if (username.equals(gameData.blackUsername()) || username.equals(gameData.whiteUsername())) {
-            joinPlayer(session, cmd, username, gameData);
-            return;
-        }
-        joinObserver(session, cmd, username, gameData);
-    }
+    // UserGameCommand cmd = new Gson().fromJson(message, UserGameCommand.class);
 
-    private void joinPlayer(Session session, UserGameCommand cmd, String username, GameData gameData)
-            throws IOException {
-        // try {
-        // AuthData auth = dataAccess.getAuthDAO().getAuth(cmd.getAuthString());
-        // GameData game = dataAccess.getGameDAO().getGame(cmd.getGameID());
+    // AuthData authData;
+    // GameData gameData;
+    // try {
+    // authData = dataAccess.getAuthDAO().getAuth(cmd.getAuthString());
 
-        // TeamColor joining = (cmd.getPlayerColor() == TeamColor.WHITE) ?
-        // TeamColor.BLACK : TeamColor.WHITE;
+    // if (authData == null) {
+    // manager.error(session, "Error: Invalid token. Unauthorized request");
+    // return;
+    // }
 
-        // boolean correctColor;
-        // if (joining == TeamColor.WHITE) {
-        // correctColor = Objects.equals(gameData.whiteUsername(), auth.username());
-        // }
-        // else {
-        // correctColor = Objects.equals(gameData.blackUsername(), auth.username());
-        // }
+    // gameData = dataAccess.getGameDAO().getGame(cmd.getGameID());
 
-        // if (!correctColor) {
-        // manager.error(session, "Error: You are not allowed to join this game");
-        // return;
-        // }
+    // if (gameData == null) {
+    // manager.error(session, "Error: Game does not exist");
+    // return;
+    // }
+    // }
+    // catch (DataAccessException e) {
+    // manager.error(session, "Unknown error: " + e.getMessage());
+    // return;
+    // }
 
-        // ServerMessage notif = new ServerMessage(ServerMessageType.NOTIFICATION,
-        // "%s joined the game as %s".formatted(auth.username(),
-        // cmd.getPlayerColor().toString()));
-        // manager.broadcast(gameData.gameID(), session, new Gson().toJson(notif));
-        // }
-        // catch (DataAccessException e) {
-        // manager.error(session, "Unknown error: " + e.getMessage());
-        // return;
-        // }
+    // switch (cmd.getCommandType()) {
+    // case CONNECT -> join(session, cmd, authData.username(), gameData);
+    // case MAKE_MOVE -> makeMove(session, cmd, authData.username(), gameData);
+    // case LEAVE -> leaveGame(session, authData.username(), gameData);
+    // case RESIGN -> resign(session, authData.username(), gameData);
+    // }
+    // }
 
-        manager.add(gameData.gameID(), session);
-        String color = (username.equals(gameData.blackUsername())) ? "white" : "black";
-        ServerMessage msg = new ServerMessage(gameData.game());
-        manager.send(session, new Gson().toJson(msg));
-        ServerMessage notification = new ServerMessage(ServerMessageType.NOTIFICATION,
-                "%s joined the game as %s".formatted(username, color));
-        manager.broadcast(session, new Gson().toJson(notification));
+    // private void leaveGame(Session session, String username, GameData gameData)
+    // throws IOException {
+    // manager.remove(gameData.gameID(), session);
+    // ServerMessage msg = new ServerMessage(ServerMessageType.NOTIFICATION,
+    // "%s %s".formatted(username,
+    // ((Objects.equals(username, gameData.blackUsername())
+    // || Objects.equals(username, gameData.whiteUsername())) ? " has left the game"
+    // : " is no longer observing the game")));
 
-        // ServerMessage notification = new
-        // ServerMessage(ServerMessageType.NOTIFICATION, "%s joined the game as %s"
-        // .formatted(username, (cmd.getPlayerColor() == TeamColor.WHITE) ? "black" :
-        // "white"));
-        // manager.send(session, new Gson().toJson(notification));
-    }
+    // manager.broadcast(gameData.gameID(), new Gson().toJson(msg), null);
+    // }
 
-    private void joinObserver(Session session, UserGameCommand cmd, String username, GameData gameData)
-            throws IOException {
-        manager.add(gameData.gameID(), session);
-        // ServerMessage notif = new ServerMessage(ServerMessageType.NOTIFICATION,
-        // "%s".formatted(new Gson().toJson(gameData)));
-        // manager.broadcast(session, new Gson().toJson(notif));
-        // String color = (username.equals(gameData.blackUsername())) ? "white" :
-        // "black";
-        ServerMessage msg = new ServerMessage(gameData.game());
-        manager.send(session, msg.getMessage());
-        // ServerMessage msg = new ServerMessage(gameData.game());
-        // manager.send(session, "AMOGUS");
-        // manager.send(session, new Gson().toJson(msg));
-
-        // ServerMessage msg = new ServerMessage(gameData.game());
-        // manager.send(session, new Gson().toJson(msg));
-        // ServerMessage notification = new
-        // ServerMessage(ServerMessageType.NOTIFICATION,
-        // "%s is now watching the game".formatted(username));
-
-        // manager.send(session, new Gson().toJson(notification));
-    }
+    // private void join(Session session, UserGameCommand cmd, String username,
+    // GameData gameData) throws IOException {
+    // manager.add(gameData.gameID(), session);
+    // if (username.equals(gameData.blackUsername()) ||
+    // username.equals(gameData.whiteUsername())) {
+    // joinPlayer(session, cmd, username, gameData);
+    // return;
+    // }
+    // joinObserver(session, cmd, username, gameData);
+    // }
 
     // private void joinPlayer(Session session, UserGameCommand cmd, String
     // username, GameData gameData)
     // throws IOException {
-    // boolean success = false;
-    // if (cmd.getPlayerColor() == ChessGame.TeamColor.WHITE) {
-    // success = Objects.equals(gameData.whiteUsername(), username);
-    // }
-    // else if (cmd.getPlayerColor() == ChessGame.TeamColor.BLACK) {
-    // success = Objects.equals(gameData.blackUsername(), username);
+    // // try {
+    // // AuthData auth = dataAccess.getAuthDAO().getAuth(cmd.getAuthString());
+    // // GameData game = dataAccess.getGameDAO().getGame(cmd.getGameID());
+
+    // // TeamColor joining = (cmd.getPlayerColor() == TeamColor.WHITE) ?
+    // // TeamColor.BLACK : TeamColor.WHITE;
+
+    // // boolean correctColor;
+    // // if (joining == TeamColor.WHITE) {
+    // // correctColor = Objects.equals(gameData.whiteUsername(), auth.username());
+    // // }
+    // // else {
+    // // correctColor = Objects.equals(gameData.blackUsername(), auth.username());
+    // // }
+
+    // // if (!correctColor) {
+    // // manager.error(session, "Error: You are not allowed to join this game");
+    // // return;
+    // // }
+
+    // // ServerMessage notif = new ServerMessage(ServerMessageType.NOTIFICATION,
+    // // "%s joined the game as %s".formatted(auth.username(),
+    // // cmd.getPlayerColor().toString()));
+    // // manager.broadcast(gameData.gameID(), session, new Gson().toJson(notif));
+    // // }
+    // // catch (DataAccessException e) {
+    // // manager.error(session, "Unknown error: " + e.getMessage());
+    // // return;
+    // // }
+
+    // manager.add(gameData.gameID(), session);
+    // String color = (username.equals(gameData.blackUsername())) ? "white" :
+    // "black";
+    // ServerMessage msg = new ServerMessage(gameData.game());
+    // manager.send(session, new Gson().toJson(msg));
+    // ServerMessage notification = new
+    // ServerMessage(ServerMessageType.NOTIFICATION,
+    // "%s joined the game as %s".formatted(username, color));
+    // manager.broadcast(session, new Gson().toJson(notification));
+
+    // // ServerMessage notification = new
+    // // ServerMessage(ServerMessageType.NOTIFICATION, "%s joined the game as %s"
+    // // .formatted(username, (cmd.getPlayerColor() == TeamColor.WHITE) ? "black" :
+    // // "white"));
+    // // manager.send(session, new Gson().toJson(notification));
     // }
 
-    // if (!success) {
-    // manager.error(session, "Error: You are not allowed to join this game");
+    // private void joinObserver(Session session, UserGameCommand cmd, String
+    // username, GameData gameData)
+    // throws IOException {
+    // manager.add(gameData.gameID(), session);
+    // // ServerMessage notif = new ServerMessage(ServerMessageType.NOTIFICATION,
+    // // "%s".formatted(new Gson().toJson(gameData)));
+    // // manager.broadcast(session, new Gson().toJson(notif));
+    // // String color = (username.equals(gameData.blackUsername())) ? "white" :
+    // // "black";
+    // ServerMessage msg = new ServerMessage(gameData.game());
+    // manager.send(session, msg.getMessage());
+    // // ServerMessage msg = new ServerMessage(gameData.game());
+    // // manager.send(session, "AMOGUS");
+    // // manager.send(session, new Gson().toJson(msg));
+
+    // // ServerMessage msg = new ServerMessage(gameData.game());
+    // // manager.send(session, new Gson().toJson(msg));
+    // // ServerMessage notification = new
+    // // ServerMessage(ServerMessageType.NOTIFICATION,
+    // // "%s is now watching the game".formatted(username));
+
+    // // manager.send(session, new Gson().toJson(notification));
+    // }
+
+    // // private void joinPlayer(Session session, UserGameCommand cmd, String
+    // // username, GameData gameData)
+    // // throws IOException {
+    // // boolean success = false;
+    // // if (cmd.getPlayerColor() == ChessGame.TeamColor.WHITE) {
+    // // success = Objects.equals(gameData.whiteUsername(), username);
+    // // }
+    // // else if (cmd.getPlayerColor() == ChessGame.TeamColor.BLACK) {
+    // // success = Objects.equals(gameData.blackUsername(), username);
+    // // }
+
+    // // if (!success) {
+    // // manager.error(session, "Error: You are not allowed to join this game");
+    // // return;
+    // // }
+
+    // // manager.add(gameData.gameID(), session);
+    // // ServerMessage msg = new ServerMessage(gameData.game());
+    // // manager.send(session, new Gson().toJson(msg));
+
+    // // ServerMessage notification = new
+    // // ServerMessage(ServerMessageType.NOTIFICATION, "%s joined the game as color
+    // // %s."
+    // // .formatted(username, ((cmd.getPlayerColor() == ChessGame.TeamColor.WHITE)
+    // ?
+    // // "white" : "black")));
+
+    // // manager.broadcast(gameData.gameID(), new Gson().toJson(notification),
+    // // session);
+    // // }
+
+    // private void makeMove(Session session, UserGameCommand cmd, String username,
+    // GameData gameData) throws IOException {
+    // if (cmd.getMove() == null) {
+    // manager.error(session, "Error: No move specified");
     // return;
     // }
 
-    // manager.add(gameData.gameID(), session);
-    // ServerMessage msg = new ServerMessage(gameData.game());
-    // manager.send(session, new Gson().toJson(msg));
+    // if (!(Objects.equals(gameData.blackUsername(), username)
+    // || Objects.equals(gameData.whiteUsername(), username))) {
+    // manager.error(session, "Error: You are not allowed to make a move in this
+    // game");
+    // return;
+    // }
 
+    // ChessGame game = gameData.game();
+    // if ((game.getTeamTurn() == ChessGame.TeamColor.WHITE &&
+    // !Objects.equals(username, gameData.whiteUsername()))
+    // || (game.getTeamTurn() == ChessGame.TeamColor.BLACK
+    // && !Objects.equals(username, gameData.blackUsername()))) {
+    // manager.error(session, "Error: It is not your turn");
+    // return;
+    // }
+
+    // try {
+    // game.makeMove(cmd.getMove());
+    // }
+    // catch (InvalidMoveException e) {
+    // manager.error(session, "Error: That move is invalid");
+    // return;
+    // }
+
+    // String end = "";
+
+    // if (game.isInCheckmate(game.getTeamTurn())) {
+    // end = "Checkmate! %s won!".formatted(username);
+    // }
+    // else if (game.isInStalemate(game.getTeamTurn())) {
+    // end = "Stalemate!";
+    // }
+    // else if (game.isInCheck(game.getTeamTurn())) {
+    // end = "Check!";
+    // }
+
+    // try {
+    // dataAccess.getGameDAO().updateGame(gameData);
+    // }
+    // catch (DataAccessException e) {
+    // manager.error(session, "Unknown server error");
+    // return;
+    // }
+
+    // ServerMessage loadGame = new ServerMessage(game);
     // ServerMessage notification = new
-    // ServerMessage(ServerMessageType.NOTIFICATION, "%s joined the game as color
-    // %s."
-    // .formatted(username, ((cmd.getPlayerColor() == ChessGame.TeamColor.WHITE) ?
-    // "white" : "black")));
+    // ServerMessage(ServerMessageType.NOTIFICATION,
+    // "%s played %s %s".formatted(username, cmd.getMove(), end));
 
+    // manager.broadcast(gameData.gameID(), new Gson().toJson(loadGame), null);
     // manager.broadcast(gameData.gameID(), new Gson().toJson(notification),
     // session);
     // }
 
-    private void makeMove(Session session, UserGameCommand cmd, String username, GameData gameData) throws IOException {
-        if (cmd.getMove() == null) {
-            manager.error(session, "Error: No move specified");
-            return;
-        }
+    // private void resign(Session session, String username, GameData gameData)
+    // throws IOException {
+    // if (!(Objects.equals(gameData.blackUsername(), username)
+    // || Objects.equals(gameData.whiteUsername(), username))) {
+    // manager.error(session, "Error: You are not allowed to resign in this game");
+    // return;
+    // }
 
-        if (!(Objects.equals(gameData.blackUsername(), username)
-                || Objects.equals(gameData.whiteUsername(), username))) {
-            manager.error(session, "Error: You are not allowed to make a move in this game");
-            return;
-        }
+    // String opponent = (Objects.equals(username, gameData.whiteUsername())) ?
+    // gameData.blackUsername()
+    // : gameData.whiteUsername();
+    // try {
+    // dataAccess.getGameDAO().updateGame(gameData);
+    // }
+    // catch (DataAccessException e) {
+    // manager.error(session, "Unknown server error");
+    // return;
+    // }
 
-        ChessGame game = gameData.game();
-        if ((game.getTeamTurn() == ChessGame.TeamColor.WHITE && !Objects.equals(username, gameData.whiteUsername()))
-                || (game.getTeamTurn() == ChessGame.TeamColor.BLACK
-                        && !Objects.equals(username, gameData.blackUsername()))) {
-            manager.error(session, "Error: It is not your turn");
-            return;
-        }
+    // ServerMessage notification = new
+    // ServerMessage(ServerMessageType.NOTIFICATION,
+    // "%s resigned, %s won".formatted(username, opponent));
+    // manager.broadcast(gameData.gameID(), new Gson().toJson(notification), null);
 
-        try {
-            game.makeMove(cmd.getMove());
-        }
-        catch (InvalidMoveException e) {
-            manager.error(session, "Error: That move is invalid");
-            return;
-        }
+    // notification = new ServerMessage(ServerMessageType.NOTIFICATION, "You
+    // resigned, %s won".formatted(opponent));
+    // manager.send(session, new Gson().toJson(notification));
+    // }
 
-        String end = "";
-
-        if (game.isInCheckmate(game.getTeamTurn())) {
-            end = "Checkmate! %s won!".formatted(username);
-        }
-        else if (game.isInStalemate(game.getTeamTurn())) {
-            end = "Stalemate!";
-        }
-        else if (game.isInCheck(game.getTeamTurn())) {
-            end = "Check!";
-        }
-
-        try {
-            dataAccess.getGameDAO().updateGame(gameData);
-        }
-        catch (DataAccessException e) {
-            manager.error(session, "Unknown server error");
-            return;
-        }
-
-        ServerMessage loadGame = new ServerMessage(game);
-        ServerMessage notification = new ServerMessage(ServerMessageType.NOTIFICATION,
-                "%s played %s %s".formatted(username, cmd.getMove(), end));
-
-        manager.broadcast(gameData.gameID(), new Gson().toJson(loadGame), null);
-        manager.broadcast(gameData.gameID(), new Gson().toJson(notification), session);
-    }
-
-    private void resign(Session session, String username, GameData gameData) throws IOException {
-        if (!(Objects.equals(gameData.blackUsername(), username)
-                || Objects.equals(gameData.whiteUsername(), username))) {
-            manager.error(session, "Error: You are not allowed to resign in this game");
-            return;
-        }
-
-        String opponent = (Objects.equals(username, gameData.whiteUsername())) ? gameData.blackUsername()
-                : gameData.whiteUsername();
-        try {
-            dataAccess.getGameDAO().updateGame(gameData);
-        }
-        catch (DataAccessException e) {
-            manager.error(session, "Unknown server error");
-            return;
-        }
-
-        ServerMessage notification = new ServerMessage(ServerMessageType.NOTIFICATION,
-                "%s resigned, %s won".formatted(username, opponent));
-        manager.broadcast(gameData.gameID(), new Gson().toJson(notification), null);
-
-        notification = new ServerMessage(ServerMessageType.NOTIFICATION, "You resigned, %s won".formatted(opponent));
-        manager.send(session, new Gson().toJson(notification));
-    }
-
-    public void clear() {
-        manager.clear();
-    }
+    // public void clear() {
+    // manager.clear();
+    // }
 }

@@ -1,7 +1,13 @@
 package ui;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import chess.ChessBoard;
+import chess.ChessGame;
 import chess.ChessGame.TeamColor;
+import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPiece.PieceType;
 import chess.ChessPosition;
@@ -21,14 +27,12 @@ public abstract class GameRendererUI extends UserInterface {
     private static ChessPiece blackKing = new ChessPiece(TeamColor.BLACK, PieceType.KING);
     private static ChessPiece blackPawn = new ChessPiece(TeamColor.BLACK, PieceType.PAWN);
 
-    public String getGameAsString(int gameNumber) {
-        ChessBoard board = getBoard(gameNumber);
-
-        return formatBoard(board);
+    private ChessBoard getBoard(int gameNumber) {
+        return getGame(gameNumber).getBoard();
     }
 
-    private ChessBoard getBoard(int gameNumber) {
-        return Data.getInstance().getGameList().get(gameNumber - 1).game().getBoard();
+    private ChessGame getGame(int gameNumber) {
+        return Data.getInstance().getGameList().get(gameNumber - 1).game();
     }
 
     private String whiteStringColorize(String piece) {
@@ -94,7 +98,7 @@ public abstract class GameRendererUI extends UserInterface {
         return output;
     }
 
-    private static String generateBlackView(String[][] boardList) {
+    private static String generateBlackView(String[][] boardList, List<ChessPosition> highlightSquares) {
         StringBuilder blackView = new StringBuilder();
         blackView.append("%s%s    h  g  f  e  d  c  b  a     %s\n".formatted(EscapeSequences.SET_BG_COLOR_DARK_GREEN,
                 EscapeSequences.SET_TEXT_COLOR_WHITE, EscapeSequences.RESET_BG_COLOR));
@@ -102,10 +106,20 @@ public abstract class GameRendererUI extends UserInterface {
             blackView.append("%s %d ".formatted(EscapeSequences.SET_BG_COLOR_DARK_GREEN, i + 1));
             for (int j = 7; j >= 0; --j) {
                 if ((i + j) % 2 == 1) {
-                    blackView.append(EscapeSequences.SET_BG_COLOR_WHITE);
+                    if (highlightSquares.contains(new ChessPosition(i + 1, j))) {
+                        blackView.append(EscapeSequences.SET_BG_COLOR_MAGENTA);
+                    }
+                    else {
+                        blackView.append(EscapeSequences.SET_BG_COLOR_WHITE);
+                    }
                 }
                 else {
-                    blackView.append(EscapeSequences.SET_BG_COLOR_BLACK);
+                    if (highlightSquares.contains(new ChessPosition(i + 1, j))) {
+                        blackView.append(EscapeSequences.SET_TEXT_COLOR_RED);
+                    }
+                    else {
+                        blackView.append(EscapeSequences.SET_BG_COLOR_BLACK);
+                    }
                 }
                 blackView.append(boardList[i][j]);
             }
@@ -117,7 +131,7 @@ public abstract class GameRendererUI extends UserInterface {
         return blackView.toString();
     }
 
-    private static String generateWhiteView(String[][] boardList) {
+    private static String generateWhiteView(String[][] boardList, List<ChessPosition> highlightSquares) {
         StringBuilder whiteView = new StringBuilder();
         whiteView.append("%s%s    a  b  c  d  e  f  g  h     %s\n".formatted(EscapeSequences.SET_BG_COLOR_DARK_GREEN,
                 EscapeSequences.SET_BG_COLOR_DARK_GREEN, EscapeSequences.RESET_BG_COLOR));
@@ -125,10 +139,20 @@ public abstract class GameRendererUI extends UserInterface {
             whiteView.append("%s %d ".formatted(EscapeSequences.SET_BG_COLOR_DARK_GREEN, i + 1));
             for (int j = 0; j < 8; j++) {
                 if (((7 - i) + (7 - j)) % 2 == 1) {
-                    whiteView.append(EscapeSequences.SET_BG_COLOR_WHITE);
+                    if (highlightSquares.contains(new ChessPosition(i, j))) {
+                        whiteView.append(EscapeSequences.SET_BG_COLOR_MAGENTA);
+                    }
+                    else {
+                        whiteView.append(EscapeSequences.SET_BG_COLOR_WHITE);
+                    }
                 }
                 else {
-                    whiteView.append(EscapeSequences.SET_BG_COLOR_BLACK);
+                    if (highlightSquares.contains(new ChessPosition(i, j))) {
+                        whiteView.append(EscapeSequences.SET_BG_COLOR_RED);
+                    }
+                    else {
+                        whiteView.append(EscapeSequences.SET_BG_COLOR_BLACK);
+                    }
                 }
                 whiteView.append(boardList[i][j]);
             }
@@ -140,12 +164,28 @@ public abstract class GameRendererUI extends UserInterface {
         return whiteView.toString();
     }
 
-    private String formatBoard(ChessBoard board) {
+    public String highlightLegal(int gameNumber, ChessPosition position) {
+        ChessGame game = getGame(gameNumber);
+        Collection<ChessMove> allowedMoves = game.validMoves(position);
+        List<ChessPosition> highlightSquares = new ArrayList<>(allowedMoves.size());
+        for (ChessMove move : allowedMoves) {
+            highlightSquares.add(move.getEndPosition());
+        }
+        return formatBoard(gameNumber, highlightSquares);
+
+    }
+
+    private String formatBoard(int gameNumber, List<ChessPosition> highlightSquares) {
+        ChessBoard board = getBoard(gameNumber);
         String[][] boardList = boardToList(board);
-        String whiteView = generateWhiteView(boardList);
-        String blackView = generateBlackView(boardList);
+        String whiteView = generateWhiteView(boardList, highlightSquares);
+        String blackView = generateBlackView(boardList, highlightSquares);
 
         return "%s%s\n\n%s%s%s\n".formatted(blackView, EscapeSequences.RESET_BG_COLOR, whiteView,
                 EscapeSequences.RESET_BG_COLOR, EscapeSequences.RESET_TEXT_COLOR);
+    }
+
+    public String formatBoard(int gameNumber) {
+        return formatBoard(gameNumber, List.of());
     }
 }

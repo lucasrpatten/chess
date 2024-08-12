@@ -78,7 +78,7 @@ public class PostloginUI extends GameRendererUI {
         int gameNumber = Integer.parseInt(args[1]);
         Data.getInstance().getServerFacade().joinGame(color, gameNumber);
         return "%sSuccessfully joined game%s\n\n%s".formatted(EscapeSequences.SET_TEXT_COLOR_GREEN,
-                EscapeSequences.RESET_TEXT_COLOR, getGameAsString(gameNumber));
+                EscapeSequences.RESET_TEXT_COLOR, (gameNumber));
     }
 
     public static int emptySpots(GameData game) {
@@ -95,7 +95,7 @@ public class PostloginUI extends GameRendererUI {
 
         int gameNumber = Integer.parseInt(args[0]);
 
-        return getGameAsString(gameNumber);
+        return formatBoard(gameNumber);
     }
 
     private String logout() {

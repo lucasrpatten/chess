@@ -87,6 +87,8 @@ public class ServerFacade {
         JoinGameRequest joinReq = new JoinGameRequest(color, gameID);
         request("/game", "PUT", joinReq, EmptyRequest.class);
         Data.getInstance().addGameID(gameID);
+        Data.getInstance().setGameNumber(gameNumber);
+        Data.getInstance().setState(Data.State.IN_GAME);
         return;
     }
 

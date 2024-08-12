@@ -28,10 +28,10 @@ import org.eclipse.jetty.websocket.api.Session;
 
 @WebSocket
 public class WebSocketHandler {
-    private static final WebSocketHandler instance = new WebSocketHandler();
+    private static final WebSocketHandler INSTANCE = new WebSocketHandler();
 
     public static WebSocketHandler getInstance() {
-        return instance;
+        return INSTANCE;
     }
 
     private DataAccess dataAccess;

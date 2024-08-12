@@ -106,7 +106,7 @@ public abstract class GameRendererUI extends UserInterface {
             blackView.append("%s %d ".formatted(EscapeSequences.SET_BG_COLOR_DARK_GREEN, i + 1));
             for (int j = 7; j >= 0; --j) {
                 if ((i + j) % 2 == 1) {
-                    if (highlightSquares.contains(new ChessPosition(i + 1, j))) {
+                    if (highlightSquares.contains(new ChessPosition(i + 1, j + 1))) {
                         blackView.append(EscapeSequences.SET_BG_COLOR_MAGENTA);
                     }
                     else {
@@ -114,8 +114,8 @@ public abstract class GameRendererUI extends UserInterface {
                     }
                 }
                 else {
-                    if (highlightSquares.contains(new ChessPosition(i + 1, j))) {
-                        blackView.append(EscapeSequences.SET_TEXT_COLOR_RED);
+                    if (highlightSquares.contains(new ChessPosition(i + 1, j + 1))) {
+                        blackView.append(EscapeSequences.SET_BG_COLOR_RED);
                     }
                     else {
                         blackView.append(EscapeSequences.SET_BG_COLOR_BLACK);
@@ -139,7 +139,7 @@ public abstract class GameRendererUI extends UserInterface {
             whiteView.append("%s %d ".formatted(EscapeSequences.SET_BG_COLOR_DARK_GREEN, i + 1));
             for (int j = 0; j < 8; j++) {
                 if (((7 - i) + (7 - j)) % 2 == 1) {
-                    if (highlightSquares.contains(new ChessPosition(i, j))) {
+                    if (highlightSquares.contains(new ChessPosition(i + 1, j + 1))) {
                         whiteView.append(EscapeSequences.SET_BG_COLOR_MAGENTA);
                     }
                     else {
@@ -147,7 +147,7 @@ public abstract class GameRendererUI extends UserInterface {
                     }
                 }
                 else {
-                    if (highlightSquares.contains(new ChessPosition(i, j))) {
+                    if (highlightSquares.contains(new ChessPosition(i + 1, j + 1))) {
                         whiteView.append(EscapeSequences.SET_BG_COLOR_RED);
                     }
                     else {
@@ -168,6 +168,7 @@ public abstract class GameRendererUI extends UserInterface {
         ChessGame game = getGame(gameNumber);
         Collection<ChessMove> allowedMoves = game.validMoves(position);
         List<ChessPosition> highlightSquares = new ArrayList<>(allowedMoves.size());
+        System.out.println(highlightSquares.toString());
         for (ChessMove move : allowedMoves) {
             highlightSquares.add(move.getEndPosition());
         }

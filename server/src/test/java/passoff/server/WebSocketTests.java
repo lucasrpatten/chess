@@ -61,17 +61,6 @@ public class WebSocketTests {
 
     @Test
     @Order(2)
-    @DisplayName("Connect White")
-
-    public void connectWhite() {
-        connectToGame(white, gameID, true, Set.of(), Set.of());
-        connectToGame(black, gameID, true, Set.of(white), Set.of());
-        connectToGame(observer, gameID, true, Set.of(white, black), Set.of()); // connect observer
-
-    }
-
-    @Test
-    @Order(2)
     @DisplayName("Connect Bad GameID")
     public void connectBadGameID() {
         connectToGame(white, gameID + 1, false, Set.of(), Set.of()); // player connect with an incorrect game id

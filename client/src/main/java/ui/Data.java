@@ -112,7 +112,7 @@ public class Data {
         ui = switch (state) {
         case LOGGED_OUT -> new PreloginUI();
         case LOGGED_IN -> new PostloginUI();
-        // case IN_GAME -> new BaseUI();
+        case IN_GAME -> new GameUI();
         default -> throw new IllegalArgumentException("Unexpected value: " + state);
         };
     }

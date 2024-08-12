@@ -1,5 +1,6 @@
 package ui;
 
+import java.io.IOException;
 import java.util.List;
 
 import chess.ChessGame;
@@ -16,7 +17,7 @@ public class GameUI extends GameRendererUI {
                 super();
                 this.cmds.put("redraw chess board",
                                 new FunctionPair<>(List.of("redrawboard", "redraw", "reload", "rb", "r"),
-                                                "Redraw the chess board.", this::redraw));
+                                                "Redraw the chess board.", this::formatBoard));
                 this.cmds.put("make move",
                                 new FunctionPair<>(List.of("move", "m"),
                                                 new Arguments(List.of("from", "to", "?promotion_piece?")),
@@ -25,14 +26,35 @@ public class GameUI extends GameRendererUI {
                                 new FunctionPair<>(List.of("highlight", "moves"),
                                                 new Arguments(List.of("piece_location")),
                                                 "Highlight the legal moves for the selected piece.", this::highlight));
-                this.cmds.put("resign", new FunctionPair<>(List.of("resign", "r"), "Resign from the game.", null));
-                this.cmds.put("leave", new FunctionPair<>(List.of("leave", "l"), "Stop viewing the game.", null));
+                this.cmds.put("resign", new FunctionPair<>(List.of("resign", "r"), "Resign from the game.", this::res));
+                this.cmds.put("leave",
+                                new FunctionPair<>(List.of("leave", "l"), "Stop viewing the game.", this::leave));
                 System.out.println(formatBoard(Data.getInstance().getGameNumber()));
 
         }
 
-        private String redraw() {
-                return formatBoard(Data.getInstance().getGameNumber());
+        private String res() {
+                try {
+                        Data.getInstance().getWebSocketClient().resign();
+                }
+                catch (IOException e) {
+                        return "Failed to resign.";
+                }
+                Data.getInstance().setState(Data.State.LOGGED_OUT);
+                return "Resigned.";
+        }
+
+        private String leave() {
+                try {
+
+                        Data.getInstance().getWebSocketClient().leave();
+                }
+                catch (IOException e) {
+                        return "Failed to leave game.";
+                }
+
+                Data.getInstance().setState(Data.State.LOGGED_OUT);
+                return "Left game.";
         }
 
         private String move(String argString) {

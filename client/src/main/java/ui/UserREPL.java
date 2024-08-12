@@ -18,7 +18,6 @@ public class UserREPL implements WebSocketObserver {
     @OnMessage
     public void receiveMessage(String msg) {
         ServerMessage message = new Gson().fromJson(msg, ServerMessage.class);
-        System.out.println("Received message: " + message);
         switch (message.getServerMessageType()) {
         case NOTIFICATION -> {
             Notification notif = new Gson().fromJson(msg, Notification.class);

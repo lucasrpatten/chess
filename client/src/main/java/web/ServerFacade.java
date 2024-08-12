@@ -92,6 +92,28 @@ public class ServerFacade {
         return;
     }
 
+    public void observeGame(int gameNumber) {
+        int gameID = Data.getInstance().getGameList().get(gameNumber - 1).gameID();
+        Data.getInstance().addGameID(gameID);
+        Data.getInstance().setGameNumber(gameNumber);
+        Data.getInstance().setState(Data.State.IN_GAME);
+        return;
+    }
+
+    // public void leave() throws IOException {
+    // Data.getInstance().getWebSocketClient().leave();
+    // Data.getInstance().setGameNumber(0);
+    // Data.getInstance().setGame(null);
+    // Data.getInstance().setState(Data.State.LOGGED_IN);
+    // }
+
+    // public void resign() throws IOException {
+    // Data.getInstance().getWebSocketClient().resign();
+    // Data.getInstance().setGameNumber(0);
+    // Data.getInstance().setGame(null);
+    // Data.getInstance().setState(Data.State.LOGGED_IN);
+    // }
+
     private <T> T request(String endpointUrl, String method, Object request, Class<T> responseType) {
         try {
             Gson gson = new Gson();

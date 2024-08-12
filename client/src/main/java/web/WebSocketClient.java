@@ -15,6 +15,7 @@ import com.google.gson.Gson;
 
 import chess.ChessMove;
 import ui.Data;
+import websocket.commands.MakeMove;
 import websocket.commands.UserGameCommand;
 import websocket.commands.UserGameCommand.CommandType;
 import websocket.messages.ServerMessage;
@@ -55,22 +56,17 @@ public class WebSocketClient implements MessageHandler.Whole<String> {
     }
 
     public void move(ChessMove move) throws IOException {
-        session.getBasicRemote().sendText(new Gson()
-                .toJson(new UserGameCommand(Data.getInstance().getAuthToken(), Data.getInstance().getGameID(), move)));
+        MakeMove moveCmd = new MakeMove(Data.getInstance().getAuthToken(), Data.getInstance().getGameID(), move);
+        sendText(new Gson().toJson(moveCmd));
     }
 
     public void leave() throws IOException {
-        session.getBasicRemote().sendText(new Gson().toJson(new UserGameCommand(UserGameCommand.CommandType.LEAVE,
+        sendText(new Gson().toJson(new UserGameCommand(UserGameCommand.CommandType.LEAVE,
                 Data.getInstance().getAuthToken(), Data.getInstance().getGameID())));
     }
 
     public void resign() throws IOException {
-        session.getBasicRemote().sendText(new Gson().toJson(new UserGameCommand(UserGameCommand.CommandType.RESIGN,
+        sendText(new Gson().toJson(new UserGameCommand(UserGameCommand.CommandType.RESIGN,
                 Data.getInstance().getAuthToken(), Data.getInstance().getGameID())));
-    }
-
-    private void sendCommand(CommandType commandType) throws IOException {
-        session.getBasicRemote().sendText(new Gson().toJson(
-                new UserGameCommand(commandType, Data.getInstance().getAuthToken(), Data.getInstance().getGameID())));
     }
 }

@@ -38,7 +38,7 @@ public class ServerMessage {
         return Objects.hash(getServerMessageType());
     }
 
-    public Object getMessage() {
+    public Object getErrorMessage() {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getMessage'");
     }

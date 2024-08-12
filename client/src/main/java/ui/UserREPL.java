@@ -21,22 +21,26 @@ public class UserREPL implements WebSocketObserver {
         switch (message.getServerMessageType()) {
         case NOTIFICATION -> {
             Notification notif = new Gson().fromJson(msg, Notification.class);
-            System.out.println("%s%s%s".formatted(EscapeSequences.SET_TEXT_COLOR_GREEN, notif.getMessage(),
+            System.out.println("%s%s%s".formatted(EscapeSequences.SET_TEXT_COLOR_GREEN, notif.getErrorMessage(),
                     EscapeSequences.RESET_TEXT_COLOR));
             break;
 
         }
         case ERROR -> {
             ErrorMsg error = new Gson().fromJson(msg, ErrorMsg.class);
-            System.out.println("%s%s%s%s%s".formatted(EscapeSequences.SET_TEXT_COLOR_RED,
-                    EscapeSequences.SET_TEXT_BLINKING, error.getErrorMessage(), EscapeSequences.RESET_TEXT_COLOR,
-                    EscapeSequences.RESET_TEXT_BLINKING));
+            System.out.println("%s%s%s".formatted(EscapeSequences.SET_TEXT_COLOR_RED, error.getErrorMessage(),
+                    EscapeSequences.RESET_TEXT_COLOR));
             break;
         }
         case LOAD_GAME -> {
             LoadGame gameMsg = new Gson().fromJson(msg, LoadGame.class);
             Data.getInstance().setGame(gameMsg.getGame());
+            System.out.println();
             System.out.println(((GameUI) Data.getInstance().getUi()).formatBoard());
+            if (Data.getInstance().getJustMoved()) {
+                Data.getInstance().setState(Data.State.LOGGED_IN);
+            }
+            Data.getInstance().setJustMoved(false);
             break;
         }
         default -> System.out.println("Unknown message type: " + message.getServerMessageType());

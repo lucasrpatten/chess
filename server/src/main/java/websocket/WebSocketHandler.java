@@ -103,7 +103,7 @@ public class WebSocketHandler {
     }
 
     private void sendError(Session session, String message) throws IOException {
-        manager.error(session, new Gson().toJson(new ErrorMsg(message)));
+        manager.error(session, message);
     }
 
     private void connect(Session session, UserGameCommand cmd, DataPair dataPair) throws IOException {

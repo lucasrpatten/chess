@@ -40,7 +40,7 @@ public class GameUI extends GameRendererUI {
                 catch (IOException e) {
                         return "Failed to resign.";
                 }
-                Data.getInstance().setState(Data.State.LOGGED_OUT);
+                Data.getInstance().setState(Data.State.LOGGED_IN);
                 return "Resigned.";
         }
 
@@ -53,11 +53,12 @@ public class GameUI extends GameRendererUI {
                         return "Failed to leave game.";
                 }
 
-                Data.getInstance().setState(Data.State.LOGGED_OUT);
+                Data.getInstance().setState(Data.State.LOGGED_IN);
                 return "Left game.";
         }
 
         private String move(String argString) {
+                Data.getInstance().setJustMoved(false);
                 String[] args = argString.split(" ");
                 if (args.length < 2 || args.length > 3) {
                         return "Invalid number of arguments. Use `help` for command info.";
@@ -91,7 +92,8 @@ public class GameUI extends GameRendererUI {
                         WebSocketClient wsc = Data.getInstance().getWebSocketClient();
                         wsc.move(move);
                         // return formatBoard(Data.getInstance().getGameNumber());
-                        return "";
+                        Data.getInstance().setJustMoved(true);
+                        return "\n";
 
                 }
                 catch (Exception e) {

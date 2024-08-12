@@ -98,6 +98,8 @@ public class PostloginUI extends GameRendererUI {
         int gameNumber = Integer.parseInt(args[0]);
 
         Data.getInstance().getServerFacade().observeGame(gameNumber);
+
+        return "";
     }
 
     private String logout() {

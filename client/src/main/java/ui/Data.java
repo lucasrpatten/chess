@@ -105,6 +105,16 @@ public class Data {
         return webSocketClient;
     }
 
+    private boolean justMoved = false;
+
+    public void setJustMoved(boolean justMoved) {
+        this.justMoved = justMoved;
+    }
+
+    public boolean getJustMoved() {
+        return justMoved;
+    }
+
     public void setGame(ChessGame game) {
         this.game = game;
     }

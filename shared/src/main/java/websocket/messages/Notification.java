@@ -9,7 +9,7 @@ public class Notification extends ServerMessage {
         this.message = msg;
     }
 
-    public String getMessage() {
+    public String getErrorMessage() {
         return message;
     }
 }

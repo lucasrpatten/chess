@@ -2,6 +2,7 @@ package ui;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Scanner;
 
 import chess.ChessGame;
 import chess.ChessMove;
@@ -31,18 +32,28 @@ public class GameUI extends GameRendererUI {
                 this.cmds.put("resign", new FunctionPair<>(List.of("resign", "r"), "Resign from the game.", this::res));
                 this.cmds.put("leave",
                                 new FunctionPair<>(List.of("leave", "l"), "Stop viewing the game.", this::leave));
-                System.out.println(formatBoard(Data.getInstance().getGameNumber()));
+                // System.out.println(formatBoard(Data.getInstance().getGameNumber()));
         }
 
         private String res() {
                 try {
+                        if (!getConfirmation()) {
+                                return "Cancelled.";
+                        }
                         Data.getInstance().getWebSocketClient().resign();
+                        return "Resigned.";
                 }
                 catch (IOException e) {
                         return "Failed to resign.";
                 }
-                Data.getInstance().setState(Data.State.LOGGED_IN);
-                return "Resigned.";
+        }
+
+        private boolean getConfirmation() {
+                Scanner scanner = new Scanner(System.in);
+                System.out.print("Are you sure? (y/n) ");
+                System.out.flush();
+                String nextLine = scanner.nextLine().toLowerCase();
+                return (nextLine.equals("yes") || nextLine.equals("y"));
         }
 
         private String leave() {
@@ -98,6 +109,7 @@ public class GameUI extends GameRendererUI {
 
                 }
                 catch (Exception e) {
+                        e.printStackTrace();
                         return "Failed to make move.";
                 }
         }
@@ -109,7 +121,7 @@ public class GameUI extends GameRendererUI {
                 }
                 try {
                         ChessPosition pos = parsePosition(argString);
-                        return highlightLegal(Data.getInstance().getGameNumber(), pos);
+                        return highlightLegal(pos);
                 }
                 catch (Exception e) {
                         return "Invalid position.";

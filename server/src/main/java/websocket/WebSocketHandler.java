@@ -2,6 +2,7 @@ package websocket;
 
 import java.io.IOException;
 
+import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
@@ -10,9 +11,10 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import com.google.gson.Gson;
 
 import chess.ChessBoard;
-import chess.ChessMove;
-import chess.InvalidMoveException;
 import chess.ChessGame.TeamColor;
+import chess.ChessMove;
+import chess.ChessPosition;
+import chess.InvalidMoveException;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import model.AuthData;
@@ -21,8 +23,6 @@ import websocket.commands.MakeMove;
 import websocket.commands.UserGameCommand;
 import websocket.messages.LoadGame;
 import websocket.messages.Notification;
-
-import org.eclipse.jetty.websocket.api.Session;
 
 @WebSocket
 public class WebSocketHandler {
@@ -164,22 +164,35 @@ public class WebSocketHandler {
             gameData.game().makeMove(move);
             Notification notif;
 
+            String start = chessNotation(move.getStartPosition());
+            String end = chessNotation(move.getEndPosition());
+            notif = new Notification("%s has made a move from %s to %s".formatted(username, start, end));
+
+            manager.broadcast(session, new Gson().toJson(notif));
             if (gameData.game().isInCheckmate(opponent)) {
                 notif = new Notification("Checkmate! %s is the winner.".formatted(opponent.toString().toLowerCase()));
+
                 gameData.game().setGameOver(true);
+                String notifJson = new Gson().toJson(notif);
+                manager.send(session, notifJson);
+                manager.broadcast(session, notifJson);
             }
             else if (gameData.game().isInStalemate(opponent)) {
                 notif = new Notification("Stalemate caused by %s. Game ends with a tie!".formatted(username));
+
                 gameData.game().setGameOver(true);
-            }
-            else if (gameData.game().isInCheck(opponent)) {
-                notif = new Notification("%s is in check.".formatted(opponent.toString().toLowerCase()));
-            }
-            else {
-                notif = new Notification("%s has made a move.".formatted(username));
+                String notifJson = new Gson().toJson(notif);
+                manager.send(session, notifJson);
+                manager.broadcast(session, notifJson);
             }
 
-            manager.broadcast(session, new Gson().toJson(notif));
+            else if (gameData.game().isInCheck(opponent)) {
+                notif = new Notification("%s is in check.".formatted(opponent.toString().toLowerCase()));
+
+                String notifJson = new Gson().toJson(notif);
+                manager.send(session, notifJson);
+                manager.broadcast(session, notifJson);
+            }
 
             dataAccess.getGameDAO().updateGame(gameData);
 
@@ -194,6 +207,13 @@ public class WebSocketHandler {
             sendError(session, "Error: Invalid Request");
             return;
         }
+    }
+
+    private String chessNotation(ChessPosition pos) {
+        int row = pos.getRow();
+        int col = pos.getColumn();
+
+        return Character.toString("abcdefgh".charAt(col - 1)) + row;
     }
 
     private void resign(Session session, UserGameCommand cmd, DataPair dataPair) throws IOException {
@@ -247,7 +267,6 @@ public class WebSocketHandler {
             return;
         }
         manager.remove(session);
-        session.close();
 
     }
 

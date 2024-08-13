@@ -18,7 +18,11 @@ public class Main {
             port = Integer.parseInt(args[1]);
         }
         Data.getInstance().initializeRun(host, port, repl);
-
-        repl.run();
+        try {
+            repl.run();
+        }
+        catch (Exception e) {
+            System.out.println("An error occurred: " + e.getMessage());
+        }
     }
 }

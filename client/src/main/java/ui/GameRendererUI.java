@@ -173,7 +173,16 @@ public abstract class GameRendererUI extends UserInterface {
             highlightSquares.add(move.getEndPosition());
         }
         return formatBoard(gameNumber, highlightSquares);
+    }
 
+    public String highlightLegal(ChessPosition position) {
+        ChessGame game = Data.getInstance().getGame();
+        Collection<ChessMove> allowedMoves = game.validMoves(position);
+        List<ChessPosition> highlightSquares = new ArrayList<>(allowedMoves.size());
+        for (ChessMove move : allowedMoves) {
+            highlightSquares.add(move.getEndPosition());
+        }
+        return formatBoard(highlightSquares);
     }
 
     private String formatBoard(int gameNumber, List<ChessPosition> highlightSquares) {
@@ -193,6 +202,22 @@ public abstract class GameRendererUI extends UserInterface {
 
     public String formatBoard(int gameNumber) {
         return formatBoard(gameNumber, List.of());
+    }
+
+    private String formatBoard(List<ChessPosition> highlightSquares) {
+        Data.getInstance().getGame();
+        ChessBoard board = Data.getInstance().getGame().getBoard();
+        String[][] boardList = boardToList(board);
+        String view;
+        if (Data.getInstance().getColor() == ChessGame.TeamColor.BLACK) {
+            view = generateBlackView(boardList, highlightSquares);
+        }
+        else {
+            view = generateWhiteView(boardList, highlightSquares);
+        }
+        // String whiteView = generateWhiteView(boardList, highlightSquares);
+        // String blackView = generateBlackView(boardList, highlightSquares);
+        return "%s%s\n\n".formatted(view, EscapeSequences.RESET_BG_COLOR);
     }
 
     public String formatBoard() {

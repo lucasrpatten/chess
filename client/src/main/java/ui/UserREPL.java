@@ -37,9 +37,9 @@ public class UserREPL implements WebSocketObserver {
             Data.getInstance().setGame(gameMsg.getGame());
             System.out.println();
             System.out.println(((GameUI) Data.getInstance().getUi()).formatBoard());
-            if (Data.getInstance().getJustMoved()) {
-                Data.getInstance().setState(Data.State.LOGGED_IN);
-            }
+            // if (Data.getInstance().getJustMoved()) {
+            // Data.getInstance().setState(Data.State.LOGGED_IN);
+            // }
             Data.getInstance().setJustMoved(false);
             break;
         }
@@ -74,8 +74,14 @@ public class UserREPL implements WebSocketObserver {
                 // Process the input
                 String[] tokens = line.toLowerCase().split(" ");
                 res = tokens[0].toLowerCase();
-                String result = Data.getInstance().getUi().runCmd(line);
-                System.out.println(result);
+                try {
+                    String result = Data.getInstance().getUi().runCmd(line);
+
+                    System.out.println(result);
+                }
+                catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
 
                 System.out.print(EscapeSequences.RESET_TEXT_COLOR);
             }

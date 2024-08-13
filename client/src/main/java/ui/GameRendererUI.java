@@ -231,34 +231,7 @@ public abstract class GameRendererUI extends UserInterface {
         else {
             view = generateWhiteView(boardList, List.of());
         }
-        // String whiteView = generateWhiteView(boardList, List.of());
-        // String blackView = generateBlackView(boardList, List.of());
         return "%s%s\n\n".formatted(view, EscapeSequences.RESET_BG_COLOR);
     }
-
-    // public String formatBoardWhiteOnly(int gameNumber) {
-    // Data.getInstance().getGame();
-    // ChessBoard board = getBoard(gameNumber);
-    // String[][] boardList = boardToList(board);
-    // String whiteView = generateWhiteView(boardList, List.of());
-    // return "%s%s\n".formatted(whiteView, EscapeSequences.RESET_BG_COLOR);
-    // }
-
-    // public String formatBoardBlackOnly(int gameNumber) {
-    // Data.getInstance().getGame();
-    // ChessBoard board = getBoard(gameNumber);
-    // String[][] boardList = boardToList(board);
-    // String blackView = generateBlackView(boardList, List.of());
-    // return "%s%s\n".formatted(blackView, EscapeSequences.RESET_BG_COLOR);
-    // }
-
-    // public String formatBoardBlackOnly() {
-    // Data.getInstance().getGame();
-    // ChessBoard board = Data.getInstance().getGame().getBoard();
-    // String[][] boardList = boardToList(board);
-    // String whiteView = generateWhiteView(boardList, List.of());
-    // String blackView = generateBlackView(boardList, List.of());
-    // return "%s%s\n".formatted(blackView, EscapeSequences.RESET_BG_COLOR);
-    // }
 
 }

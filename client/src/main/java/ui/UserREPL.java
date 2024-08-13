@@ -37,9 +37,6 @@ public class UserREPL implements WebSocketObserver {
             Data.getInstance().setGame(gameMsg.getGame());
             System.out.println();
             System.out.println(((GameUI) Data.getInstance().getUi()).formatBoard());
-            // if (Data.getInstance().getJustMoved()) {
-            // Data.getInstance().setState(Data.State.LOGGED_IN);
-            // }
             Data.getInstance().setJustMoved(false);
             break;
         }
